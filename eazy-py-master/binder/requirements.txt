@@ -1,0 +1,13 @@
+-r ../requirements.txt
+dash
+requests
+flask
+retrying
+ipython
+ipykernel
+ansi2html
+notebook
+jupyter_server_proxy
+pandas
+numpy
+jupyter-dash
