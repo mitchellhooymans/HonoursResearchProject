@@ -46,7 +46,10 @@ def read_skirtor_model(folder_path, optical_depth, p, q, opening_angle, radius_r
     # Read in the file and convert it to a pandas dataframe
     data = np.loadtxt(filepath, skiprows=5)
     # Convert it to a pandas dataframe # All fluxes are of the form lambda*F_lambda
+    
     df = pd.DataFrame(data, columns=['lambda (micron)', 'Total Flux (W/m2)', 'Direct AGN Flux (W/m2)', 'Scattered AGN Flux (W/m2)', 'Total Dust Emission Flux (W/m2)', 'Dust Emission Scattered Flux(W/m2)', 'Transparent Flux(W/m2)'])
+    # Be sure to convert the wavelength column to Angstroms
+    data[0] = data[0]*10000
     return df
 
 
@@ -152,34 +155,57 @@ def plot_uvj(uv_colours, vj_colours):
     plt.annotate('Dusty', (1.95, 2.4), color='black')
     plt.show()
     
-    ####################################################################################################
+####################################################################################################
     
-    def read_brown_galaxy_templates(folder_path):
-        """_summary_
+def read_brown_galaxy_templates(folder_path):
+    """_summary_
 
-        	Args:
-                folder_path (string): path to the folder where the SED templates are located
+        Args:
+            folder_path (string): path to the folder where the SED templates are located
     
-            Returns:
-                df_list: Returns a list of dataframes containing the SED templates
-                objname_list: Returns a list of the names of the objects
+        Returns:
+            df_list: Returns a list of dataframes containing the SED templates
+            objname_list: Returns a list of the names of the objects
+    """
+    df_list = []
+    objname_list = []
+    folder_path = os.path.join(folder_path)
+    files_in_folder = os.listdir(folder_path)
+    print(files_in_folder)
+    for file in files_in_folder:
+
+        # Find filepath
+        objname = file.split('_restframe.dat')[0]
+        filepath = os.path.join(folder_path, file)
+        data = np.loadtxt(filepath)
+        #convert to dataframe 
+        df = pd.DataFrame(data)
+            
+        # our wavelength is in microns, convert to Angstroms
+        df[0] = df[0] * 10000 # microns 10^-6 -> Angstroms 10^-10 
+        
+
+            
+        df_list.append(df)
+        objname_list.append(objname)
+    return (df_list, objname_list)
+    
+####################################################################################################
+
+def plot_brown_galaxy_sed(df, name):
+        """_summary_
+        A tool to quickly plot a galaxy from Brown's templates
+
+        Args:
+            df (DataFrame): Dataframe containing the SED information
+            name (string): name of the galaxy 
         """
-        df_list = []
-        objname_list = []
-        folder_path = os.path.join(folder_path)
-        files_in_folder = os.listdir(folder_path)
-        for file in files_in_folder:
-            # Find filepath
-            objname = file.split('_restframe.dat')[0]
-            filepath = os.path.join(folder_path, file)
-            data = np.loadtxt(filepath)
-            #convert to dataframe 
-            df = pd.DataFrame(data)
-            
-            # our wavelength is in microns, convert to Angstroms
-            df[0] = df[0] * 10000 # microns 10^-6 -> Angstroms 10^-10 
-            
-            
-            df_list.append(df)
-            objname_list.append(objname)
-        return df_list, objname_list
+        plt.figure(figsize=(10, 5))
+        plt.plot(df[0], df[2])
+        plt.xlabel('Wavelength (Angstroms)')
+        plt.ylabel('Flux (erg/s/cm^2/Angstrom)')
+        plt.title('Galaxy Template of: '+ name)
+        plt.grid()
+        plt.xscale('log')
+        #plt.xlim([6500, 6750])
+        plt.show()
