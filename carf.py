@@ -6,23 +6,23 @@
 
 # Import packages <-  note the dependencies
 import matplotlib.pyplot as plt
-#import astropy.units as u
 import numpy as np
 import pandas as pd
 import os
-#from astLib import astSED
-#import astropy.io.fits as fits
+
+####################################################################################################
+
+# Define global important values
+
+TAU = [3, 5, 7, 9, 11] # Optical Depth - tau
+P = [0, 0.5,1, 1.5] # radial gradient of dust density
+Q = [0, 0.5,1, 1.5] # polar dust density gradient 
+OA = [10, 20, 30, 40, 50, 60, 70, 80] # opening angle between equiltorial plane and edge of torus
+RR = [10, 20, 30] # ratio of outer to inner radius
+I = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90] # inclination, the viewing angle of instrument w.r.t AGN
 
 
-SKIRTOR_PARAMS = {
-    'optical_depth_list' : [3, 5, 7, 9, 11],
-    'p_list' : [0, 0.5,1, 1.5],
-    'q_list' : [0, 0.5,1, 1.5],
-    'opening_angle_list' : [10, 20, 30, 40, 50, 60, 70, 80],
-    'radius_ratio_list' : [10, 20, 30],
-    'inclination_list' : [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
-}
-
+####################################################################################################
 
 
 def read_skirtor_model(folder_path, optical_depth, p, q, opening_angle, radius_ratio, inclination):
@@ -49,6 +49,8 @@ def read_skirtor_model(folder_path, optical_depth, p, q, opening_angle, radius_r
     df = pd.DataFrame(data, columns=['lambda (micron)', 'Total Flux (W/m2)', 'Direct AGN Flux (W/m2)', 'Scattered AGN Flux (W/m2)', 'Total Dust Emission Flux (W/m2)', 'Dust Emission Scattered Flux(W/m2)', 'Transparent Flux(W/m2)'])
     return df
 
+
+####################################################################################################
 
 def read_multiple_skirtor_models(folder_path, optical_depth_list, p_list, q_list, opening_angle_list, radius_ratio_list, inclination_list):
     """_summary_
@@ -79,4 +81,5 @@ def read_multiple_skirtor_models(folder_path, optical_depth_list, p_list, q_list
                             parameter_list.append([optical_depth, p, q, opening_angle, radius_ratio, inclination])
     return (df_list, parameter_list)
 
+####################################################################################################
 
