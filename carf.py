@@ -83,3 +83,103 @@ def read_multiple_skirtor_models(folder_path, optical_depth_list, p_list, q_list
 
 ####################################################################################################
 
+def read_all_skirtor_models(folder_path):
+    """_summary_
+
+    Args:
+        folder_path (string): path to the folder where the models are located
+    
+    Returns:
+        pd.DataFrame: Returns a tuple with the a list of dataframes containing all of thee models, and a list of the input parameters for each dataframe
+    """
+    (df_list, parameter_list) = read_multiple_skirtor_models(folder_path, TAU, P, Q, OA, RR, I)
+    
+    return (df_list, parameter_list)
+
+####################################################################################################
+
+def plot_uvj(uv_colours, vj_colours):
+    """_summary_
+
+    Args:
+        uv_colours (array):  
+        vj_colours (array):
+    
+    Returns:
+        None: plots a UVJ diagram with the given UV and VJ colours
+    """
+    
+    plt.figure(figsize=(10, 10))
+    plt.scatter(vj_colours, uv_colours, c="red", s=10, label="Galaxy")
+    plt.ylabel('U - V')
+    plt.xlabel('V - J')
+    plt.title("Restframe UVJ Colours for Brown's Templates")
+    plt.xlim([-0.5,2.2])
+    plt.axes.line_width = 4
+    plt.ylim([0,2.5])
+
+
+     # We can use code to make patch selections on the UVJ diagram, selecting Quiescent, Star-forming, and Dusty Galaxies
+    # We use the paths as provided below to make the selections.
+    path_quiescent = [[-0.5, 1.3],
+                        [0.85, 1.3],
+                        [1.6, 1.95],
+                        [1.6, 2.5],
+                        [-0.5, 2.5]]
+
+    path_sf = [[-0.5, 0.0],
+                [-0.5, 1.3],
+                [0.85, 1.3],
+                [1.2, 1.60333],
+                [1.2, 0.0]]
+
+    path_sfd = [[1.2, 0.0],
+                    [1.2, 1.60333],
+                    [1.6, 1.95],
+                    [1.6, 2.5],
+                    [2.2, 2.5],
+                    [2.2, 0.0]]
+
+    plt.gca().add_patch(plt.Polygon(path_quiescent, closed=True, fill=True, facecolor=(1, 0, 0, 0.03),edgecolor='k', linewidth=2, linestyle='solid'))
+    plt.gca().add_patch(plt.Polygon(path_sf, closed=True, fill=True, facecolor=(0, 0, 1, 0.03)))
+    plt.gca().add_patch(plt.Polygon(path_sfd, closed=True, fill=True, facecolor=(1, 1, 0, 0.03)))
+
+    plt.axvline(1.2, color='black', linestyle='--', ymin=0, ymax=1.60333/2.5) 
+
+
+    plt.annotate('Quiescent', (-0.4, 2.4), color='black')
+    plt.annotate('Star-forming', (-0.4, 1.2), color='black')
+    plt.annotate('Dusty', (1.95, 2.4), color='black')
+    plt.show()
+    
+    ####################################################################################################
+    
+    def read_brown_galaxy_templates(folder_path):
+        """_summary_
+
+        	Args:
+                folder_path (string): path to the folder where the SED templates are located
+    
+            Returns:
+                df_list: Returns a list of dataframes containing the SED templates
+                objname_list: Returns a list of the names of the objects
+        """
+        df_list = []
+        objname_list = []
+        folder_path = os.path.join(folder_path)
+        files_in_folder = os.listdir(folder_path)
+        for file in files_in_folder:
+            # Find filepath
+            objname = file.split('_restframe.dat')[0]
+            filepath = os.path.join(folder_path, file)
+            data = np.loadtxt(filepath)
+            #convert to dataframe 
+            df = pd.DataFrame(data)
+            
+            # our wavelength is in microns, convert to Angstroms
+            df[0] = df[0] * 10000 # microns 10^-6 -> Angstroms 10^-10 
+            
+            
+            df_list.append(df)
+            objname_list.append(objname)
+        return df_list, objname_list
