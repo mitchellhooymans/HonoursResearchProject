@@ -14,13 +14,15 @@ import os
 
 # Define global important values
 
-TAU = [3, 5, 7, 9, 11] # Optical Depth - tau
-P = [0, 0.5,1, 1.5] # radial gradient of dust density
-Q = [0, 0.5,1, 1.5] # polar dust density gradient 
-OA = [10, 20, 30, 40, 50, 60, 70, 80] # opening angle between equiltorial plane and edge of torus
-RR = [10, 20, 30] # ratio of outer to inner radius
-I = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90] # inclination, the viewing angle of instrument w.r.t AGN
+# TAU = [3, 5, 7, 9, 11] # Optical Depth - tau
+# P = [0, 0.5,1, 1.5] # radial gradient of dust density
+# Q = [0, 0.5,1, 1.5] # polar dust density gradient 
+# OA = [10, 20, 30, 40, 50, 60, 70, 80] # opening angle between equiltorial plane and edge of torus
+# RR = [10, 20, 30] # ratio of outer to inner radius
+# I = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90] # inclination, the viewing angle of instrument w.r.t AGN
 
+# Dictionary to store the names of the models, using the values of the parameters
+SKIRTOR_PARAMS = {'tau': [3, 5, 7, 9, 11], 'p': [0, 0.5,1, 1.5], 'q': [0, 0.5,1, 1.5], 'oa': [10, 20, 30, 40, 50, 60, 70, 80], 'rr': [10, 20, 30], 'i': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]}
 
 ####################################################################################################
 
@@ -45,11 +47,30 @@ def read_skirtor_model(folder_path, optical_depth, p, q, opening_angle, radius_r
     filepath =os.path.join(folder_path, filename)
     # Read in the file and convert it to a pandas dataframe
     data = np.loadtxt(filepath, skiprows=5)
-    # Convert it to a pandas dataframe # All fluxes are of the form lambda*F_lambda
     
-    df = pd.DataFrame(data, columns=['lambda (micron)', 'Total Flux (W/m2)', 'Direct AGN Flux (W/m2)', 'Scattered AGN Flux (W/m2)', 'Total Dust Emission Flux (W/m2)', 'Dust Emission Scattered Flux(W/m2)', 'Transparent Flux(W/m2)'])
-    # Be sure to convert the wavelength column to Angstroms
-    data[0] = data[0]*10000
+    # Convert it to a pandas dataframe # All fluxes are of the form lambda*F_lambda
+    df = pd.DataFrame(data)
+    
+    # Convert the first column to angstroms
+    df[0] = df[0]*10000
+    
+    
+    # for the rest of the columns, we need to convert the fluxes to erg/s/cm^2/Angstrom
+    df.iloc[:, 1:]
+    
+    # Convert W/m2 to erg/s/cm^2/Angstrom
+    # first by converting W to erg/s
+    df.iloc[:, 1:] = df.iloc[:, 1:]*10**7
+        
+    # then by converting  ergs/s/m^2 to ergs/s/cm^2
+    #df.iloc[:, 1:] = df.iloc[:, 1:]*10**4
+        
+    # finally by converting ergs/s/cm^2 to ergs/s/cm^2/Angstrom: lambda*f_lambda -> f_lambda
+    df.iloc[:, 1:] = df.iloc[:, 1:].div(df[0], axis=0)
+    
+    # Name each of the columns appropriately 
+    df.columns = ['lambda (Angstroms)', 'Total Flux (erg/s/cm^2/Angstrom)', 'Direct AGN Flux (erg/s/cm^2/Angstrom)', 'Scattered AGN Flux (erg/s/cm^2/Angstrom)', 'Total Dust Emission Flux (erg/s/cm^2/Angstrom)', 'Dust Emission Scattered Flux(erg/s/cm^2/Angstrom)', 'Transparent Flux(erg/s/cm^2/Angstrom)']
+        
     return df
 
 
@@ -95,13 +116,58 @@ def read_all_skirtor_models(folder_path):
     Returns:
         pd.DataFrame: Returns a tuple with the a list of dataframes containing all of thee models, and a list of the input parameters for each dataframe
     """
-    (df_list, parameter_list) = read_multiple_skirtor_models(folder_path, TAU, P, Q, OA, RR, I)
+    #(df_list, parameter_list) = read_multiple_skirtor_models(folder_path, SKIRTOR_PARAMS['tau'], SKIRTOR_PARAMS['p'], SKIRTOR_PARAMS['q'], SKIRTOR_PARAMS['oa'], SKIRTOR_PARAMS['rr'], SKIRTOR_PARAMS['i'])
+    
+    df_list = []
+    parameter_list = []
+    files_in_folder = os.listdir(folder_path)
+    print(files_in_folder)
+    for file in files_in_folder:
+
+        # Find filepath
+        filepath = os.path.join(folder_path, file)
+        data = np.loadtxt(filepath)
+        
+        # Find the parameters from the filename
+        objname = file.split('_sed.dat')[0]
+        t = str(objname.split('t')[1].split('_p')[0])
+        p = str(objname.split('p')[1].split('_q')[0])
+        q = str(objname.split('q')[1].split('_oa')[0])
+        oa = str(objname.split('oa')[1].split('_R')[0])
+        rr = str(objname.split('R')[1].split('_Mcl')[0])
+        i = str(objname.split('i')[1])
+        
+        # put all of the parameters into a list
+        objname = [t, p, q, oa, rr, i]
+        
+        
+        #convert to dataframe 
+        df = pd.DataFrame(data)
+        
+        # Convert wavelength into Angstroms
+        df[0] = df[0]*10000
+        
+        # Convert W/m2 to erg/s/cm^2/Angstrom
+        # first by converting W to erg/s
+        df[1:] = df[1:]*10**7
+        
+        # then by converting  ergs/s/m^2 to ergs/s/cm^2
+        df[1:] = df[1:]*10**4
+        
+        # finally by converting ergs/s/cm^2 to ergs/s/cm^2/Angstrom: lambda*f_lambda -> f_lambda
+        df[1:] = df[1:]/df[0]
+        
+        # Name each of the columns appropriately 
+        df.columns = ['lambda (Angstroms)', 'Total Flux (erg/s/cm^2/Angstrom)', 'Direct AGN Flux (erg/s/cm^2/Angstrom)', 'Scattered AGN Flux (erg/s/cm^2/Angstrom)', 'Total Dust Emission Flux (erg/s/cm^2/Angstrom)', 'Dust Emission Scattered Flux(erg/s/cm^2/Angstrom)', 'Transparent Flux(erg/s/cm^2/Angstrom)']
+            
+        df_list.append(df)
+        parameter_list.append(objname)
     
     return (df_list, parameter_list)
 
 ####################################################################################################
 
-def plot_uvj(uv_colours, vj_colours):
+def plot_uvj(uv_colours, vj_colours, path=False):
     """_summary_
 
     Args:
@@ -120,6 +186,15 @@ def plot_uvj(uv_colours, vj_colours):
     plt.xlim([-0.5,2.2])
     plt.axes.line_width = 4
     plt.ylim([0,2.5])
+    
+    
+    if path:
+        # Line plot connecting points
+        #plt.plot(vj_colours, uv_colours, color='blue', linewidth=1, linestyle='-', alpha=0.5)
+        for i in range(len(uv_colours) - 1):
+            dx = vj_colours[i+1] - vj_colours[i]
+            dy = uv_colours[i+1] - uv_colours[i]
+            plt.arrow(vj_colours[i], uv_colours[i], dx, dy, head_width=0.05, head_length=0.05, fc='black', ec='red')
 
 
      # We can use code to make patch selections on the UVJ diagram, selecting Quiescent, Star-forming, and Dusty Galaxies
@@ -174,20 +249,23 @@ def read_brown_galaxy_templates(folder_path):
     print(files_in_folder)
     for file in files_in_folder:
 
-        # Find filepath
+        # Find filepath and convert to df
         objname = file.split('_restframe.dat')[0]
         filepath = os.path.join(folder_path, file)
         data = np.loadtxt(filepath)
-        #convert to dataframe 
         df = pd.DataFrame(data)
             
         # our wavelength is in microns, convert to Angstroms
         df[0] = df[0] * 10000 # microns 10^-6 -> Angstroms 10^-10 
         
-
+        # Name each of the columns appropriately
+        df.columns = ['lambda (Angstroms)', 'Luminosity (W/Hz)' , 'Total Flux (erg/s/cm^2/Angstrom)', 'Source']
             
+        # Append the dataframe to the list    
         df_list.append(df)
         objname_list.append(objname)
+        
+        
     return (df_list, objname_list)
     
 ####################################################################################################
@@ -209,3 +287,5 @@ def plot_brown_galaxy_sed(df, name):
         plt.xscale('log')
         #plt.xlim([6500, 6750])
         plt.show()
+        
+####################################################################################################
