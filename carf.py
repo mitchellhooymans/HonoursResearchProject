@@ -355,3 +355,80 @@ def normalize_sed(wavelengths, flux, reference_wavelength):
     return normalized_flux
 
 ####################################################################################################
+
+# Function to create composite SED
+def create_gal_agn_composite_sed(agn_df, gal_sed, alpha, reference_wavelength=5500):
+    
+    wavelengths_sed1 = agn_df['lambda (Angstroms)']
+    flux_sed1 = agn_df['Total Flux (erg/s/cm^2/Angstrom)']
+    
+    # Galaxy Contribution -> 100%
+    wavelengths_sed2 = gal_sed['lambda (Angstroms)']
+    flux_sed2 = gal_sed['Total Flux (erg/s/cm^2/Angstrom)']
+
+    # Normalize the flux of the SEDs
+    flux_sed1 = normalize_sed(wavelengths_sed1, flux_sed1, 5500) # AGN
+    flux_sed2 = normalize_sed(wavelengths_sed2, flux_sed2, 5500) # Galaxy
+
+    # Cut the AGN models so that they are within the range of the SWIRE models
+    min_wavelength = np.max([np.min(wavelengths_sed1), np.min(wavelengths_sed2)])
+    max_wavelength = np.min([np.max(wavelengths_sed1), np.max(wavelengths_sed2)]) 
+
+    # Cut the AGN model
+    mask = (wavelengths_sed1 >= min_wavelength) & (wavelengths_sed1 <= max_wavelength) 
+    wavelengths_sed1 = wavelengths_sed1[mask]
+    flux_sed1 = flux_sed1[mask]
+
+    # Initial guess for the scaling factor (e.g., 1.0)
+    initial_guess = 1.0
+
+    # Use scipy.optimize.minimize to find the optimal scaling factor
+    #result = minimize(scaling_error, initial_guess, args=(flux_sed2, flux_sed1))
+
+    # Get the optimal scaling factor from the optimization result
+    #scaling_factor = result.x[0]
+
+    # alternatively
+    # Find the scaling factor to align the highest point of SED 2 to the highest point of SED 1
+    scaling_factor = np.max(flux_sed2) / np.max(flux_sed1)
+
+    # Scale AGN flux
+    flux_sed1 = flux_sed1 * scaling_factor # Should create a well scaled SED for the AGN
+
+
+    # Combine SEDs with interpolation
+    combined_wavelengths = np.union1d(wavelengths_sed1, wavelengths_sed2)
+
+    # Interpolate flux values for the combined wavelengths
+    combined_flux_sed1 = np.interp(combined_wavelengths, wavelengths_sed1, flux_sed1, left=np.nan, right=np.nan)
+    combined_flux_sed2 = np.interp(combined_wavelengths, wavelengths_sed2, flux_sed2, left=np.nan, right=np.nan)
+
+    # where there are nan, replace with 0
+    combined_flux_sed1 = np.nan_to_num(combined_flux_sed1)
+    combined_flux_sed2 = np.nan_to_num(combined_flux_sed2)
+
+    # Take the mean flux at each wavelength
+    #combined_flux = np.nanmean(np.vstack([combined_flux_sed1, combined_flux_sed2]), axis=0)
+    
+    # Sum the flux values at each wavelength
+    combined_flux = alpha*combined_flux_sed1 + (1-alpha)*combined_flux_sed2
+    
+    # Create a composite SED DataFrame
+    composite_sed_df = pd.DataFrame({'lambda (Angstroms)': combined_wavelengths, 'Total Flux (erg/s/cm^2/Angstrom)': combined_flux})
+    
+    return composite_sed_df
+
+####################################################################################################
+
+# calculate UVJ colours from SED object
+
+def calculate_UVJ_colours(sed_object, pb_U, pb_V, pb_J):
+    # Create the colours 
+    sed = astSED.SED(wavelength=sed_object['lambda (Angstroms)'], flux=sed_object['Total Flux (erg/s/cm^2/Angstrom)']) # z = 0.0 as these are restframe SEDs
+
+    # Using the astSED library calculate the UVJ colours using the U, V, and J passbands. 
+    # We will use the AB magnitude system
+    uv = astSED.SED.calcColour(sed, pb_U, pb_V, magType='AB')
+    vj = astSED.SED.calcColour(sed, pb_V, pb_J, magType='AB')  
+    
+    return uv, vj
