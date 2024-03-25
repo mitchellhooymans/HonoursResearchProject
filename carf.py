@@ -420,8 +420,6 @@ def create_gal_agn_composite_sed(agn_df, gal_sed, alpha, reference_wavelength=55
 
 ####################################################################################################
 
-# calculate UVJ colours from SED object
-
 def calculate_UVJ_colours(sed_object, pb_U, pb_V, pb_J):
     # Create the colours 
     sed = astSED.SED(wavelength=sed_object['lambda (Angstroms)'], flux=sed_object['Total Flux (erg/s/cm^2/Angstrom)']) # z = 0.0 as these are restframe SEDs
