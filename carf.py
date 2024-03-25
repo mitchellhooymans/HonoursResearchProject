@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
+from astLib import astSED
 
 ####################################################################################################
 
@@ -167,7 +168,7 @@ def read_all_skirtor_models(folder_path):
 
 ####################################################################################################
 
-def plot_uvj(uv_colours, vj_colours, path=False):
+def plot_uvj(uv_colours, vj_colours, path=False, col="red"):
     """_summary_
 
     Args:
@@ -179,10 +180,10 @@ def plot_uvj(uv_colours, vj_colours, path=False):
     """
     
     plt.figure(figsize=(10, 10))
-    plt.scatter(vj_colours, uv_colours, c="red", s=10, label="Galaxy")
+    plt.scatter(vj_colours, uv_colours, c=col, s=10, label="Galaxy")
     plt.ylabel('U - V')
     plt.xlabel('V - J')
-    plt.title("Restframe UVJ Colours for Brown's Templates")
+    plt.title("Restframe UVJ Colours")
     plt.xlim([-0.5,2.2])
     plt.axes.line_width = 4
     plt.ylim([0,2.5])
@@ -270,22 +271,87 @@ def read_brown_galaxy_templates(folder_path):
     
 ####################################################################################################
 
-def plot_brown_galaxy_sed(df, name):
+def plot_galaxy_sed(wavelengths, fluxes, name, template_set):
         """_summary_
-        A tool to quickly plot a galaxy from Brown's templates
-
+        A tool to quickly plot a galaxy templates, flexible enough to plot templates from different sources
+        
         Args:
             df (DataFrame): Dataframe containing the SED information
             name (string): name of the galaxy 
         """
         plt.figure(figsize=(10, 5))
-        plt.plot(df[0], df[2])
+        plt.plot(wavelengths, fluxes, color='blue', linewidth=1, linestyle='-', alpha=0.5)
         plt.xlabel('Wavelength (Angstroms)')
         plt.ylabel('Flux (erg/s/cm^2/Angstrom)')
-        plt.title('Galaxy Template of: '+ name)
+        plt.title('Galaxy Template of: '+ name + " (" + template_set + ")")
         plt.grid()
         plt.xscale('log')
-        #plt.xlim([6500, 6750])
+        #plt.xlim([10**5, 10**6])
         plt.show()
         
+####################################################################################################
+
+def read_swire_templates(folder_path):
+    """_summary_
+
+    Args:
+        folder_path (string): folder path to the swire templates
+    
+    Returns:
+            df_list: Returns a list of dataframes containing the SED templates
+            objname_list: Returns a list of the names of the objects
+    """
+    df_list = []
+    objname_list = []
+    folder_path = os.path.join(folder_path)
+    files_in_folder = os.listdir(folder_path)
+    
+    # make sure to only read .sed files
+    file_extension = '.sed'
+    
+    # Filter files based on the specified file extension
+    files_in_folder = [file for file in files_in_folder if file.endswith(file_extension)]
+    
+    for file in files_in_folder:
+        # Find filepath and convert to df
+        objname = file.split('_template_norm.sed')[0]
+        filepath = os.path.join(folder_path, file)
+        data = np.loadtxt(filepath)
+        df = pd.DataFrame(data)
+        
+        # Name each of the columns appropriately
+        df.columns = ['lambda (Angstroms)', 'Total Flux (erg/s/cm^2/Angstrom)']
+            
+        # Append the dataframe to the list    
+        df_list.append(df)
+        objname_list.append(objname)
+    
+    return df_list, objname_list
+
+####################################################################################################
+
+def normalize_sed(wavelengths, flux, reference_wavelength):
+    """
+    Normalize the flux of a spectral energy distribution (SED) at a specified reference wavelength.
+    If the exact reference wavelength is not found, use the next closest wavelength.
+
+    Parameters:
+    - wavelengths (numpy array): Array of wavelengths (in microns).
+    - flux (numpy array): Array of flux values corresponding to each wavelength.
+    - reference_wavelength (float): Reference wavelength (in microns) to normalize the flux.
+
+    Returns:
+    - normalized_flux (numpy array): Normalized flux values of the SED.
+    """
+    # Find the index of the reference wavelength in the wavelengths array
+    ref_index = np.argmin(np.abs(wavelengths - reference_wavelength))
+    
+    # Get the flux value at the reference wavelength or the next closest wavelength
+    ref_flux = flux[ref_index]
+    
+    # Normalize the flux values by dividing by the reference flux
+    normalized_flux = flux / ref_flux
+    
+    return normalized_flux
+
 ####################################################################################################
