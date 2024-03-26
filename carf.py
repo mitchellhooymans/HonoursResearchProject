@@ -296,6 +296,7 @@ def read_swire_templates(folder_path):
 
     Args:
         folder_path (string): folder path to the swire templates
+        name (string): name of template
     
     Returns:
             df_list: Returns a list of dataframes containing the SED templates
@@ -327,6 +328,44 @@ def read_swire_templates(folder_path):
         objname_list.append(objname)
     
     return df_list, objname_list
+
+####################################################################################################
+
+def read_swire_template(folder_path, name):
+    """_summary_
+
+    Args:
+        folder_path (string): folder path to the swire templates
+        name (string): name of template
+    
+    Returns:
+            df_list: Returns a list of dataframes containing the SED templates
+            objname_list: Returns a list of the names of the objects
+    """
+    folder_path = os.path.join(folder_path)
+    files_in_folder = os.listdir(folder_path)
+    
+    # make sure to only read .sed files
+    file_extension = '.sed'
+    
+    # Filter files based on the specified file extension
+    files_in_folder = [file for file in files_in_folder if file.endswith(file_extension)]
+    
+    for file in files_in_folder:
+        # Find filepath and convert to df
+        objname = file.split('_template_norm.sed')[0]
+        if objname == name:
+            filepath = os.path.join(folder_path, file)
+            data = np.loadtxt(filepath)
+            df = pd.DataFrame(data)
+        
+            # Name each of the columns appropriately
+            df.columns = ['lambda (Angstroms)', 'Total Flux (erg/s/cm^2/Angstrom)']
+            
+            return df, objname
+        
+    
+    return None, None
 
 ####################################################################################################
 
