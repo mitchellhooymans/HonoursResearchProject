@@ -361,7 +361,7 @@ def read_swire_template(folder_path, name):
         
             # Name each of the columns appropriately
             df.columns = ['lambda (Angstroms)', 'Total Flux (erg/s/cm^2/Angstrom)']
-            
+
             return df, objname
         
     
