@@ -396,18 +396,26 @@ def normalize_sed(wavelengths, flux, reference_wavelength):
 ####################################################################################################
 
 # Function to create composite SED
-def create_gal_agn_composite_sed(agn_df, gal_sed, alpha, composite_method='addition'):
+def create_gal_agn_composite_sed(agn_df, gal_sed, alpha, beta):
+    """ Creates a composite galaxy/agn sed with a given weight of the AGN SED and Galaxy SED
+    mixing can be done if beta = 1 - alpha.
+    Args:
+        agn_df (df): _description_
+        gal_sed (df): _description_
+        alpha (int): value from 0 to 1 the weight of the AGN SED in the composite SED
+        beta (int): value from 0 to 1, the weight of the galaxy SED in the composite SED
+
+    Returns:
+        _type_: _description_
+    """
     
     # adjust the wavelength range of the AGN and Galaxy SEDs
     agn_df, gal_sed = adjust_wavelength_range(agn_df, gal_sed)
     
     # Sum the flux values at each wavelength
-    if composite_method == 'addition':
-        combined_flux = alpha * agn_df['Total Flux (erg/s/cm^2/Angstrom)'] + gal_sed['Total Flux (erg/s/cm^2/Angstrom)']
-        
-    elif(composite_method == 'mixing'):
-        combined_flux = alpha * agn_df['Total Flux (erg/s/cm^2/Angstrom)'] + (1 - alpha) * gal_sed['Total Flux (erg/s/cm^2/Angstrom)']
+    combined_flux = alpha * agn_df['Total Flux (erg/s/cm^2/Angstrom)'] + beta * gal_sed['Total Flux (erg/s/cm^2/Angstrom)']
     
+
     # use the wavelength of the galaxy SED or AGN sed
     combined_wavelengths = gal_sed['lambda (Angstroms)']
     
