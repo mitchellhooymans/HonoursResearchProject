@@ -396,61 +396,20 @@ def normalize_sed(wavelengths, flux, reference_wavelength):
 ####################################################################################################
 
 # Function to create composite SED
-def create_gal_agn_composite_sed(agn_df, gal_sed, alpha, reference_wavelength=5500):
+def create_gal_agn_composite_sed(agn_df, gal_sed, alpha, composite_method='addition'):
     
-    wavelengths_sed1 = agn_df['lambda (Angstroms)']
-    flux_sed1 = agn_df['Total Flux (erg/s/cm^2/Angstrom)']
-    
-    # Galaxy Contribution -> 100%
-    wavelengths_sed2 = gal_sed['lambda (Angstroms)']
-    flux_sed2 = gal_sed['Total Flux (erg/s/cm^2/Angstrom)']
-
-    # Normalize the flux of the SEDs
-    flux_sed1 = normalize_sed(wavelengths_sed1, flux_sed1, 5500) # AGN
-    flux_sed2 = normalize_sed(wavelengths_sed2, flux_sed2, 5500) # Galaxy
-
-    # Cut the AGN models so that they are within the range of the SWIRE models
-    min_wavelength = np.max([np.min(wavelengths_sed1), np.min(wavelengths_sed2)])
-    max_wavelength = np.min([np.max(wavelengths_sed1), np.max(wavelengths_sed2)]) 
-
-    # Cut the AGN model
-    mask = (wavelengths_sed1 >= min_wavelength) & (wavelengths_sed1 <= max_wavelength) 
-    wavelengths_sed1 = wavelengths_sed1[mask]
-    flux_sed1 = flux_sed1[mask]
-
-    # Initial guess for the scaling factor (e.g., 1.0)
-    initial_guess = 1.0
-
-    # Use scipy.optimize.minimize to find the optimal scaling factor
-    #result = minimize(scaling_error, initial_guess, args=(flux_sed2, flux_sed1))
-
-    # Get the optimal scaling factor from the optimization result
-    #scaling_factor = result.x[0]
-
-    # alternatively
-    # Find the scaling factor to align the highest point of SED 2 to the highest point of SED 1
-    scaling_factor = np.max(flux_sed2) / np.max(flux_sed1)
-
-    # Scale AGN flux
-    flux_sed1 = flux_sed1 * scaling_factor # Should create a well scaled SED for the AGN
-
-
-    # Combine SEDs with interpolation
-    combined_wavelengths = np.union1d(wavelengths_sed1, wavelengths_sed2)
-
-    # Interpolate flux values for the combined wavelengths
-    combined_flux_sed1 = np.interp(combined_wavelengths, wavelengths_sed1, flux_sed1, left=np.nan, right=np.nan)
-    combined_flux_sed2 = np.interp(combined_wavelengths, wavelengths_sed2, flux_sed2, left=np.nan, right=np.nan)
-
-    # where there are nan, replace with 0
-    combined_flux_sed1 = np.nan_to_num(combined_flux_sed1)
-    combined_flux_sed2 = np.nan_to_num(combined_flux_sed2)
-
-    # Take the mean flux at each wavelength
-    #combined_flux = np.nanmean(np.vstack([combined_flux_sed1, combined_flux_sed2]), axis=0)
+    # adjust the wavelength range of the AGN and Galaxy SEDs
+    agn_df, gal_sed = adjust_wavelength_range(agn_df, gal_sed)
     
     # Sum the flux values at each wavelength
-    combined_flux = alpha*combined_flux_sed1 + (1-alpha)*combined_flux_sed2
+    if composite_method == 'addition':
+        combined_flux = alpha * agn_df['Total Flux (erg/s/cm^2/Angstrom)'] + gal_sed['Total Flux (erg/s/cm^2/Angstrom)']
+        
+    elif(composite_method == 'mixing'):
+        combined_flux = alpha * agn_df['Total Flux (erg/s/cm^2/Angstrom)'] + (1 - alpha) * gal_sed['Total Flux (erg/s/cm^2/Angstrom)']
+    
+    # use the wavelength of the galaxy SED or AGN sed
+    combined_wavelengths = gal_sed['lambda (Angstroms)']
     
     # Create a composite SED DataFrame
     composite_sed_df = pd.DataFrame({'lambda (Angstroms)': combined_wavelengths, 'Total Flux (erg/s/cm^2/Angstrom)': combined_flux})
@@ -469,3 +428,70 @@ def calculate_UVJ_colours(sed_object, pb_U, pb_V, pb_J):
     vj = astSED.SED.calcColour(sed, pb_V, pb_J, magType='AB')  
     
     return uv, vj
+
+####################################################################################################
+
+def adjust_wavelength_range(sed_1, sed_2):
+    """Given a particular SED with a particular wavelength range, and another SED with a different but similar wavelength
+        range, make a combined wavelength range for both of these values, cutting off both SEDS at the minimum SED value of the two
+        and return two SEDs that are comparable.
+
+    Args:
+        sed_1 (dataframe): The first dataframe
+        sed_2 (dataframe): 
+    """
+    
+    # Given an SED
+    wavelengths_sed1 = sed_1['lambda (Angstroms)']
+    flux_sed1 = sed_1['Total Flux (erg/s/cm^2/Angstrom)']
+
+    wavelengths_sed2 = sed_2['lambda (Angstroms)']
+    flux_sed2 = sed_2['Total Flux (erg/s/cm^2/Angstrom)']
+
+    # Get a shared wavelength range across both SEDS
+    combined_wavelengths = np.union1d(wavelengths_sed1, wavelengths_sed2)
+
+    # Interpolate flux values for the combined wavelengths
+    combined_flux_sed1 = np.interp(combined_wavelengths, wavelengths_sed1, flux_sed1, left=np.nan, right=np.nan)
+    combined_flux_sed2 = np.interp(combined_wavelengths, wavelengths_sed2, flux_sed2, left=np.nan, right=np.nan) 
+
+    # We would like to see which sed has the min wavelength , and max wavelength,
+    # Cut the AGN and Galaxy model so they are within range of the original swire model
+    min_wavelength = np.max([np.min(wavelengths_sed1), np.min(wavelengths_sed2)])
+    max_wavelength = np.min([np.max(wavelengths_sed1), np.max(wavelengths_sed2)])
+
+    # Cut the AGN model
+    mask = (combined_wavelengths >= min_wavelength) & (combined_wavelengths <= max_wavelength)
+    combined_wavelengths = combined_wavelengths[mask]
+    combined_flux_sed1 = combined_flux_sed1[mask]
+    combined_flux_sed2 = combined_flux_sed2[mask]
+    
+    # Create a new dataframe for each SED
+    new_sed1 = pd.DataFrame({'lambda (Angstroms)': combined_wavelengths, 'Total Flux (erg/s/cm^2/Angstrom)': combined_flux_sed1}) 
+    new_sed2 = pd.DataFrame({'lambda (Angstroms)': combined_wavelengths, 'Total Flux (erg/s/cm^2/Angstrom)': combined_flux_sed2}) 
+    
+    return new_sed1, new_sed2
+
+####################################################################################################
+
+def normalize_flux_integral(sed):
+    """ This function is intended to be used to normalize the flux of a given SED based on the integral of the flux.
+
+    Args:
+        sed (dataframe): input dataframe that will be normalized
+
+    Returns:
+        sed (dataframe): output dataframe that contains the normalized flux
+    """
+    
+    # Integrate the flux to get the total flux
+    integrated_sed_flux = np.trapz(sed['Total Flux (erg/s/cm^2/Angstrom)'], sed['lambda (Angstroms)'])
+
+    # Normalise based on integral flux
+    sed['integral normalized flux'] = sed['Total Flux (erg/s/cm^2/Angstrom)'] / integrated_sed_flux
+    
+    return sed
+
+
+
+
