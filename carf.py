@@ -531,9 +531,8 @@ def compute_scaling_factor(agn, galaxy):
     # Integrate the flux to get the total flux
     integrated_agn_flux = integral_flux(agn)
     integrated_galaxy_flux = integral_flux(galaxy)
-    
-    # Generate the scaling factor
-    scaling_factor = integrated_galaxy_flux / integrated_agn_flux
+
+    scaling_factor = integrated_galaxy_flux/integrated_agn_flux
     
     return scaling_factor
 
