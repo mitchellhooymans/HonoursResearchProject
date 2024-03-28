@@ -280,12 +280,11 @@ def plot_galaxy_sed(wavelengths, fluxes, name, template_set):
             name (string): name of the galaxy 
         """
         plt.figure(figsize=(10, 5))
-        plt.plot(wavelengths, fluxes, color='blue', linewidth=1, linestyle='-', alpha=0.5)
+        plt.loglog(wavelengths, fluxes, color='blue', linewidth=1, linestyle='-', alpha=0.5)
         plt.xlabel('Wavelength (Angstroms)')
         plt.ylabel('Flux (erg/s/cm^2/Angstrom)')
-        plt.title('Galaxy Template of: '+ name + " (" + template_set + ")")
+        plt.title('SED of: '+ name + " (" + template_set + ")")
         plt.grid()
-        plt.xscale('log')
         #plt.xlim([10**5, 10**6])
         plt.show()
         
@@ -369,7 +368,7 @@ def read_swire_template(folder_path, name):
 
 ####################################################################################################
 
-def normalize_sed(wavelengths, flux, reference_wavelength):
+def normalize_sed(wavelengths, flux, reference_wavelength): # deprecated
     """
     Normalize the flux of a spectral energy distribution (SED) at a specified reference wavelength.
     If the exact reference wavelength is not found, use the next closest wavelength.
@@ -396,26 +395,28 @@ def normalize_sed(wavelengths, flux, reference_wavelength):
 ####################################################################################################
 
 # Function to create composite SED
-def create_gal_agn_composite_sed(agn_df, gal_sed, alpha, beta):
+def create_gal_agn_composite_sed(agn_df, gal_sed, alpha, beta=1):
     """ Creates a composite galaxy/agn sed with a given weight of the AGN SED and Galaxy SED
     mixing can be done if beta = 1 - alpha.
     Args:
         agn_df (df): _description_
         gal_sed (df): _description_
         alpha (int): value from 0 to 1 the weight of the AGN SED in the composite SED
-        beta (int): value from 0 to 1, the weight of the galaxy SED in the composite SED
+        beta (int): value from 0 to 1, the weight of the galaxy SED in the composite SED (default to 1 to allow for addition)
 
     Returns:
         _type_: _description_
     """
     
-    # adjust the wavelength range of the AGN and Galaxy SEDs
-    agn_df, gal_sed = adjust_wavelength_range(agn_df, gal_sed)
+    # Normalize the flux of the AGN and Galaxy SEDs
+    scaling_factor = compute_scaling_factor(agn_df, gal_sed)
+    
+    # Scaled flux densities
+    agn_df['Total Flux (erg/s/cm^2/Angstrom)'] = agn_df['Total Flux (erg/s/cm^2/Angstrom)'] * scaling_factor
     
     # Sum the flux values at each wavelength
     combined_flux = alpha * agn_df['Total Flux (erg/s/cm^2/Angstrom)'] + beta * gal_sed['Total Flux (erg/s/cm^2/Angstrom)']
     
-
     # use the wavelength of the galaxy SED or AGN sed
     combined_wavelengths = gal_sed['lambda (Angstroms)']
     
@@ -445,8 +446,8 @@ def adjust_wavelength_range(sed_1, sed_2):
         and return two SEDs that are comparable.
 
     Args:
-        sed_1 (dataframe): The first dataframe
-        sed_2 (dataframe): 
+        sed_1 (dataframe): The first sed dataframe
+        sed_2 (dataframe): the second sed dataframe
     """
     
     # Given an SED
@@ -483,7 +484,8 @@ def adjust_wavelength_range(sed_1, sed_2):
 ####################################################################################################
 
 def normalize_flux_integral(sed):
-    """ This function is intended to be used to normalize the flux of a given SED based on the integral of the flux.
+    """ This function is intended to be used to normalize the flux of a given SED based on the integral of the flux,
+        and is an approach to mixing the SEDs
 
     Args:
         sed (dataframe): input dataframe that will be normalized
@@ -493,13 +495,47 @@ def normalize_flux_integral(sed):
     """
     
     # Integrate the flux to get the total flux
-    integrated_sed_flux = np.trapz(sed['Total Flux (erg/s/cm^2/Angstrom)'], sed['lambda (Angstroms)'])
+    integrated_sed_flux = integral_flux(sed)
 
     # Normalise based on integral flux
     sed['integral normalized flux'] = sed['Total Flux (erg/s/cm^2/Angstrom)'] / integrated_sed_flux
     
     return sed
 
+####################################################################################################
+
+def integral_flux(sed):
+    """_summary_
+
+    Args:
+        sed (_type_): Takes an SED with a flux and wavelength and computes a resulting integral.
+
+    Returns:
+        _type_: Returns the result of an integral over the total flux with respect to the wavelength
+    """
+    return np.trapz(sed['Total Flux (erg/s/cm^2/Angstrom)'], sed['lambda (Angstroms)'])
+    
+    
+####################################################################################################
+
+def compute_scaling_factor(agn, galaxy):
+    """_summary_
+
+    Args:
+        sed1 (_type_): _description_
+        sed2 (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # Integrate the flux to get the total flux
+    integrated_agn_flux = integral_flux(agn)
+    integrated_galaxy_flux = integral_flux(galaxy)
+    
+    # Generate the scaling factor
+    scaling_factor = integrated_galaxy_flux / integrated_agn_flux
+    
+    return scaling_factor
 
 
 
