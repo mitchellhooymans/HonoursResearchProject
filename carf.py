@@ -168,6 +168,58 @@ def read_all_skirtor_models(folder_path):
 
 ####################################################################################################
 
+def create_type1_skirtor_agn(folder_path):
+    """_summary_
+
+    Args:
+        _type_: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # Create a dataframe with the parameters for a type 1 AGN
+    # These are the parameters for a type 1 AGN
+    tau = SKIRTOR_PARAMS['tau'][2]
+    p = SKIRTOR_PARAMS['p'][1] # Can make this either 0.5 or 0 (we choose 0.5)
+    q = SKIRTOR_PARAMS['q'][0] # Make this zero, similar to the Ciesla paper
+    oa = SKIRTOR_PARAMS['oa'][4] # opening angle of 50 degrees
+    rr = SKIRTOR_PARAMS['rr'][1] # ratio of 20
+    i = SKIRTOR_PARAMS['i'][0] # inclination of 0 degrees
+    
+    
+    # Create the dataframe
+    df = read_skirtor_model(folder_path, tau, p, q, oa, rr, i)
+    
+    return df
+
+####################################################################################################
+
+def create_type2_skirtor_agn(folder_path):
+    """_summary_
+
+    Args:
+        _type_: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # Create a dataframe with the parameters for a type 2 AGN
+    # These are the parameters for a type 2 AGN
+    tau = SKIRTOR_PARAMS['tau'][2]
+    p = SKIRTOR_PARAMS['p'][1] # Can make this either 0.5 or 0 (we choose 0.5)
+    q = SKIRTOR_PARAMS['q'][0] # Make this zero, similar to the Ciesla paper
+    oa = SKIRTOR_PARAMS['oa'][4] # opening angle of 50 degrees
+    rr = SKIRTOR_PARAMS['rr'][1] # ratio of 20
+    i = SKIRTOR_PARAMS['i'][9] # inclination of 0 degrees
+    
+    
+    # Create the dataframe
+    df = read_skirtor_model(folder_path, tau, p, q, oa, rr, i)
+    
+    return df
+
+####################################################################################################
+
 def plot_uvj(uv_colours, vj_colours, path=False, col="red"):
     """_summary_
 
@@ -268,6 +320,42 @@ def read_brown_galaxy_templates(folder_path):
         
         
     return (df_list, objname_list)
+
+
+####################################################################################################
+
+def read_brown_galaxy_template(folder_path, name):
+    """_summary_
+
+    Args:
+        folder_path (string): path to the folder where the SED templates are located
+        name (string): name of the object
+    
+    Returns:
+        df: Returns a dataframe containing the SED template
+        objname: Returns the name of the object
+    """
+    folder_path = os.path.join(folder_path)
+    files_in_folder = os.listdir(folder_path)
+    
+    for file in files_in_folder:
+        # Find filepath and convert to df
+        objname = file.split('_restframe.dat')[0]
+        if objname == name:
+            filepath = os.path.join(folder_path, file)
+            data = np.loadtxt(filepath)
+            df = pd.DataFrame(data)
+            
+            # our wavelength is in microns, convert to Angstroms
+            df[0] = df[0] * 10000 # microns 10^-6 -> Angstroms 10^-10 
+        
+            # Name each of the columns appropriately
+            df.columns = ['lambda (Angstroms)', 'Luminosity (W/Hz)' , 'Total Flux (erg/s/cm^2/Angstrom)', 'Source']
+            
+            return df, objname
+        
+    
+    return None, None
     
 ####################################################################################################
 
@@ -535,6 +623,7 @@ def compute_scaling_factor(agn, galaxy):
     scaling_factor = integrated_galaxy_flux/integrated_agn_flux
     
     return scaling_factor
+
 
 
 
