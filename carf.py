@@ -25,6 +25,9 @@ from astLib import astSED
 # Dictionary to store the names of the models, using the values of the parameters
 SKIRTOR_PARAMS = {'tau': [3, 5, 7, 9, 11], 'p': [0, 0.5,1, 1.5], 'q': [0, 0.5,1, 1.5], 'oa': [10, 20, 30, 40, 50, 60, 70, 80], 'rr': [10, 20, 30], 'i': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]}
 
+
+
+
 ####################################################################################################
 
 
@@ -190,7 +193,7 @@ def create_type1_skirtor_agn(folder_path):
     # Create the dataframe
     df = read_skirtor_model(folder_path, tau, p, q, oa, rr, i)
     
-    return df
+    return df, [tau, p, q, oa, rr, i]
 
 ####################################################################################################
 
@@ -216,7 +219,66 @@ def create_type2_skirtor_agn(folder_path):
     # Create the dataframe
     df = read_skirtor_model(folder_path, tau, p, q, oa, rr, i)
     
-    return df
+    return df, [tau, p, q, oa, rr, i]
+
+####################################################################################################
+
+def create_random_agn(folder_path):
+    """_summary_
+
+    Args:
+        _type_: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # Create a dataframe with the parameters for a random AGN
+    # These are the parameters for a random AGN
+    
+    # for each of the SKIRTOR parameters, we will choose a random value from the list of possible values
+    
+    
+    # Select random indices from each list
+    tau_index = np.random.choice(len(SKIRTOR_PARAMS['tau']))
+    p_index = np.random.choice(len(SKIRTOR_PARAMS['p']))
+    q_index = np.random.choice(len(SKIRTOR_PARAMS['q']))
+    oa_index = np.random.choice(len(SKIRTOR_PARAMS['oa']))
+    rr_index = np.random.choice(len(SKIRTOR_PARAMS['rr']))
+    i_index = np.random.choice(len(SKIRTOR_PARAMS['i']))
+
+    # Use the random indices to get the corresponding values
+    tau = SKIRTOR_PARAMS['tau'][tau_index]
+    p = SKIRTOR_PARAMS['p'][p_index]
+    q = SKIRTOR_PARAMS['q'][q_index]
+    oa = SKIRTOR_PARAMS['oa'][oa_index]
+    rr = SKIRTOR_PARAMS['rr'][rr_index]
+    i = SKIRTOR_PARAMS['i'][i_index]
+
+    # Create the dataframe
+    df = read_skirtor_model(folder_path, tau, p, q, oa, rr, i)
+    
+    return df, [tau, p, q, oa, rr, i]
+
+####################################################################################################
+
+def create_n_random_agns(folder_path, n):
+    """Generates n random AGN models from the SKIRTOR models
+    
+
+    Args:
+        folder_path (_type_): path to the folder where the models are located
+        n (_type_): number of random AGN models to generate
+
+    Returns:
+        _type_: a list containing the random AGN models
+        _type_: a list containing the parameters for each of the random AGN models
+    """
+    random_agn_list = []
+    random_agn_params = []
+    for n in range(n):
+        random_agn, params = create_random_agn(folder_path)
+        random_agn_list.append(random_agn)
+        random_agn_params.append(params)
 
 ####################################################################################################
 
@@ -625,5 +687,117 @@ def compute_scaling_factor(agn, galaxy):
     return scaling_factor
 
 
+####################################################################################################
+
+# function to create a set of composites
+def generate_composite_set(agn_df, gal_sed_list, alpha_list):
+    """_summary_ Creates a set of composite SEDs from a particular template set. 
+
+    Args:
+        agn_df (df): _description_
+        gal_sed (list): _description_
+        alpha_list (list): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # Create a list of composite SEDs
+    composite_alpha_list = []
+    # Loop through the list of alpha values
+    for alpha in alpha_list:
+        composite_sed_list = []
+        for gal_sed in gal_sed_list:
+            agn_model = agn_df
+            composite_sed = create_composite_sed(agn_model, gal_sed, alpha)
+            composite_sed_list.append(composite_sed)
+        composite_alpha_list.append(composite_sed_list)
+    return composite_alpha_list
+
+####################################################################################################
+
+## Updated version of the function to create composite SED
+def create_composite_sed(agn_df, gal_sed, alpha, beta=1):
+    """ Creates a composite galaxy/agn sed with a given weight of the AGN SED and Galaxy SED
+    mixing can be done if beta = 1 - alpha.
+    Args:
+        agn_df (df): _description_
+        gal_sed (df): _description_
+        alpha (int): value from 0 to 1 the weight of the AGN SED in the composite SED
+        beta (int): value from 0 to 1, the weight of the galaxy SED in the composite SED (default to 1 to allow for addition)
+
+    Returns:
+        _type_: _description_
+    """
+    
+    # Ensure that the SED is of the same wavelength range, interpolating as required
+    agn_df, gal_sed = adjust_wavelength_range(agn_df, gal_sed)
+    
+    # Normalize the flux of the AGN and Galaxy SEDs
+    scaling_factor = compute_scaling_factor(agn_df, gal_sed)
+    
+    # Scaled flux densities
+    agn_df['Total Flux (erg/s/cm^2/Angstrom)'] = agn_df['Total Flux (erg/s/cm^2/Angstrom)'] * scaling_factor
+    
+    # Sum the flux values at each wavelength
+    combined_flux = alpha * agn_df['Total Flux (erg/s/cm^2/Angstrom)'] + beta * gal_sed['Total Flux (erg/s/cm^2/Angstrom)']
+    
+    # use the wavelength of the galaxy SED or AGN sed
+    combined_wavelengths = gal_sed['lambda (Angstroms)']
+    
+    # Create a composite SED DataFrame
+    composite_sed_df = pd.DataFrame({'lambda (Angstroms)': combined_wavelengths, 'Total Flux (erg/s/cm^2/Angstrom)': combined_flux})
+    
+    return composite_sed_df
 
 
+####################################################################################################
+
+# Generate the UVJ colours for the composite SEDs
+def generate_UVJ_composite_set_colours(composite_sed_list, alpha_list, pb_U, pb_V, pb_J):
+    """_summary_
+
+    Args:
+        composite_sed_list (_type_): _description_
+        alpha_list (_type_): _description_
+
+    Returns:
+        _type_: the uv and vj colours for each of the composite SEDs
+    """
+    
+    # Create some lists to store the full set of alpha colours
+    uv_specific_alpha_colours = []
+    vj_specific_alpha_colours = []
+    uv_colours =[]
+    vj_colours = []
+    
+    for i in range(len(alpha_list)):
+        # This will be the set of composites for the specific alpha value
+        sed_alpha_data = composite_sed_list[i]
+        
+        for sed_data in sed_alpha_data:
+            # Create an SED object using astSED
+            wl = sed_data['lambda (Angstroms)']
+            fl = sed_data['Total Flux (erg/s/cm^2/Angstrom)']
+            sed = astSED.SED(wavelength=wl, flux=fl, z=0.0)    
+            
+            # create the uv and vj colours
+            uv = astSED.SED.calcColour(sed, pb_U, pb_V, magType='AB')
+            vj = astSED.SED.calcColour(sed, pb_V, pb_J, magType='AB')
+            
+            # Append colours to list
+            uv_colours.append(uv)
+            vj_colours.append(vj)
+        
+        # Append the uv, and vj colours     
+        uv_specific_alpha_colours.append(uv_colours)
+        vj_specific_alpha_colours.append(vj_colours)
+
+        # Reset the colours for the next set of alpha values
+        uv_colours = []
+        vj_colours = []
+        
+    # converting the colours to dataframes inside each list
+    uv_specific_alpha_colours = [pd.DataFrame(uv) for uv in uv_specific_alpha_colours]
+    vj_specific_alpha_colours = [pd.DataFrame(vj) for vj in vj_specific_alpha_colours]
+    
+    return uv_specific_alpha_colours, vj_specific_alpha_colours
