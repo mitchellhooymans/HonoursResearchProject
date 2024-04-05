@@ -797,7 +797,66 @@ def generate_UVJ_composite_set_colours(composite_sed_list, alpha_list, pb_U, pb_
         vj_colours = []
         
     # converting the colours to dataframes inside each list
-    uv_specific_alpha_colours = [pd.DataFrame(uv) for uv in uv_specific_alpha_colours]
-    vj_specific_alpha_colours = [pd.DataFrame(vj) for vj in vj_specific_alpha_colours]
+    #uv_specific_alpha_colours = [pd.DataFrame(uv) for uv in uv_specific_alpha_colours]
+    #vj_specific_alpha_colours = [pd.DataFrame(vj) for vj in vj_specific_alpha_colours]
     
     return uv_specific_alpha_colours, vj_specific_alpha_colours
+
+####################################################################################################
+
+def plot_uvj_composite_set(composite_sed_list, template_names, alpha_list, pb_U, pb_V, pb_J, path=False):
+    
+    uv, vj = generate_UVJ_composite_set_colours(composite_sed_list, alpha_list, pb_U, pb_V, pb_J)
+    
+    uv_cols = []
+    vj_cols = []
+
+    plt.figure(figsize=(10, 10))
+    for i in range(len(uv[0])):
+        # Plot for this particular composite i, all of the associated alpha values
+        for j in range(len(alpha_list)):
+            # where uv[i][j] is the U - V colour of the ith composite, with the jth alpha value
+            # and vj[i][j] is the V - J colour of the ith composite, with the jth alpha value
+
+            
+            # add all of the composites into a list
+            uv_cols.append(uv[j][i])
+            vj_cols.append(vj[j][i])
+            
+            # Plot a connecting line
+            #if j != 0:
+                #plt.plot([vj[i][j-1], vj[i][j]], [uv[i][j-1], uv[i][j]], color='black', alpha=alpha_values[j])
+        plt.scatter(vj_cols, uv_cols, c=alpha_list, s=10)
+        
+        # for the first entry, plot the associated template name
+        plt.text(vj_cols[0], uv_cols[0], template_names[i], fontsize=12)
+        
+        if path:
+            plt.plot(vj_cols, uv_cols, color='black', alpha=0.5)
+        
+        # clear the lists for the next composite
+        uv_cols = []
+        vj_cols = []
+        
+    plt.colorbar().set_label('AGN Contribution')
+    plt.ylabel('U - V')
+    plt.xlabel('V - J')
+    plt.title("Restframe UVJ Colours of AGN Composites")
+    plt.xlim([-0.5, 2.2])
+    plt.ylim([0, 2.5])
+    
+    # Define paths for selections
+    path_quiescent = [[-0.5, 1.3], [0.85, 1.3], [1.6, 1.95], [1.6, 2.5], [-0.5, 2.5]]
+    path_sf = [[-0.5, 0.0], [-0.5, 1.3], [0.85, 1.3], [1.2, 1.60333], [1.2, 0.0]]
+    path_sfd = [[1.2, 0.0], [1.2, 1.60333], [1.6, 1.95], [1.6, 2.5], [2.2, 2.5], [2.2, 0.0]]
+
+    # Add patches for selections
+    plt.gca().add_patch(plt.Polygon(path_quiescent, closed=True, fill=True, facecolor=(1, 0, 0, 0.03), edgecolor='k', linewidth=2, linestyle='solid'))
+    plt.gca().add_patch(plt.Polygon(path_sf, closed=True, fill=True, facecolor=(0, 0, 1, 0.03)))
+    plt.gca().add_patch(plt.Polygon(path_sfd, closed=True, fill=True, facecolor=(1, 1, 0, 0.03)))
+
+    # Add vertical line
+    plt.axvline(1.2, color='black', linestyle='--', ymin=0, ymax=1.60333/2.5)
+
+
+    plt.show()
