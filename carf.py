@@ -361,7 +361,6 @@ def read_brown_galaxy_templates(folder_path):
     objname_list = []
     folder_path = os.path.join(folder_path)
     files_in_folder = os.listdir(folder_path)
-    print(files_in_folder)
     for file in files_in_folder:
 
         # Find filepath and convert to df
@@ -604,7 +603,9 @@ def adjust_wavelength_range(sed_1, sed_2):
     wavelengths_sed1 = sed_1['lambda (Angstroms)']
     flux_sed1 = sed_1['Total Flux (erg/s/cm^2/Angstrom)']
 
+    #print(sed_2['lambda (Angstroms)'])
     wavelengths_sed2 = sed_2['lambda (Angstroms)']
+    
     flux_sed2 = sed_2['Total Flux (erg/s/cm^2/Angstrom)']
 
     # Get a shared wavelength range across both SEDS
@@ -732,6 +733,13 @@ def create_composite_sed(agn_df, gal_sed, alpha, beta=1):
     # Ensure that the SED is of the same wavelength range, interpolating as required
     agn_df, gal_sed = adjust_wavelength_range(agn_df, gal_sed)
     
+    
+    # count the NaN values
+    print("There are ", gal_sed.isnull().sum().sum(), " NaN values in the galaxy SED")
+    
+    # Remove them
+    gal_sed = gal_sed.dropna()
+    
     # Normalize the flux of the AGN and Galaxy SEDs
     scaling_factor = compute_scaling_factor(agn_df, gal_sed)
     
@@ -773,9 +781,11 @@ def generate_UVJ_composite_set_colours(composite_sed_list, alpha_list, pb_U, pb_
     for i in range(len(alpha_list)):
         # This will be the set of composites for the specific alpha value
         sed_alpha_data = composite_sed_list[i]
-        
+       
         for sed_data in sed_alpha_data:
             # Create an SED object using astSED
+        
+            
             wl = sed_data['lambda (Angstroms)']
             fl = sed_data['Total Flux (erg/s/cm^2/Angstrom)']
             sed = astSED.SED(wavelength=wl, flux=fl, z=0.0)    
@@ -976,4 +986,3 @@ def plot_mean_uvj_composite_set(composite_sed_list, template_names, alpha_list, 
 
 
     plt.show()
-    
