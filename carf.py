@@ -734,9 +734,6 @@ def create_composite_sed(agn_df, gal_sed, alpha, beta=1):
     agn_df, gal_sed = adjust_wavelength_range(agn_df, gal_sed)
     
     
-    # count the NaN values
-    print("There are ", gal_sed.isnull().sum().sum(), " NaN values in the galaxy SED")
-    
     # Remove them
     gal_sed = gal_sed.dropna()
     
