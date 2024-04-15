@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import os
 from astLib import astSED
+from astropy.io import fits
 
 ####################################################################################################
 
@@ -983,3 +984,85 @@ def plot_mean_uvj_composite_set(composite_sed_list, template_names, alpha_list, 
 
 
     plt.show()
+    
+    
+    ####################################################################################################
+
+def read_zfourge_data(fieldname, folderpath): # Define a function to read in zfourge data, this will be added to the helper package later
+    # Dictionary to read from
+    zfourge_fields = {
+    'CDFS': ['zf_cdfs.fits', 'zf_cdfs_rest.fits', 'zf_cdfs_eazy.fits', 'zf_cdfs_sfr.fits'],
+    'COSMOS': ['zf_cosmos.fits', 'zf_cosmos_rest.fits', 'zf_cosmos_eazy.fits', 'zf_cosmos_sfr.fits'],
+    'UDS': ['zf_uds.fits', 'zf_uds_rest.fits', 'zf_uds_eazy.fits', 'zf_uds_sfr.fits'],
+    }
+    
+    folder = folderpath
+    
+    
+    # Construct file paths using os.path.join() to make it platform-independent
+    catalog_file = os.path.join(folder, zfourge_fields[fieldname][0])
+    rest_file = os.path.join(folder, zfourge_fields[fieldname][1])
+    eazy_file = os.path.join(folder, zfourge_fields[fieldname][2])
+    sfr_file = os.path.join(folder, zfourge_fields[fieldname][3])
+    
+    # Open the fits files <- needs to be different for CAT vs Fits files
+    catalog_fits = fits.open(catalog_file)
+    rest_fits = fits.open(rest_file)
+    sfr_fits = fits.open(sfr_file)
+    
+    # Read the files into DataFrames <- needs to be different for CAT vs Fits files
+    df = pd.DataFrame(np.array(catalog_fits[1].data).byteswap().newbyteorder()) 
+    rest_df = pd.DataFrame(np.array(rest_fits[1].data).byteswap().newbyteorder())
+    eazy_df = pd.DataFrame(np.array(fits.open(eazy_file)[1].data).byteswap().newbyteorder())
+    sfr_df = pd.DataFrame(np.array(sfr_fits[1].data).byteswap().newbyteorder())
+    
+    
+    # Rename the Seq column to id for consistency
+    df.rename(columns={'Seq':'id'}, inplace=True)
+    rest_df.rename(columns={'Seq':'id', 'FU':'U', 'e_FU':'eU', 'FV':'V', 'e_FV':'eV', 'FJ':'J','e_FJ':'eJ'}, inplace=True)
+    eazy_df.rename(columns={'Seq':'id'}, inplace=True)
+    sfr_df.rename(columns={'Seq':'id'}, inplace=True)
+    
+    
+    # We now merge the two dataframes into one dataframe, adding a suffix _rest if columns clash
+    #df = pd.merge(df, rest_df, on='id', suffixes=('', '_rest'))
+    
+    # we now merge rest and df into one
+    #df = pd.concat([df, rest_df], axis=1)
+    df = pd.merge(df, rest_df[['id', 'U', 'eU', 'V', 'eV', 'J','eJ']], on='id', suffixes=('_original', '_rest'))
+    df = pd.merge(df, eazy_df[['id', 'zpk']], on='id', suffixes=('', '_eazy'))
+    df = pd.merge(df, sfr_df[['id', 'lssfr', 'lmass']], on='id', suffixes=('', '_sfr'))
+    
+    
+    # Create new rest_frame magnitudes
+    # Create new columns for the magnitudes of each of the filters
+    df.loc[:, 'mag_U'] = flux_to_mag(df['U'])
+    df.loc[:, 'mag_V'] = flux_to_mag(df['V'])
+    df.loc[:, 'mag_J'] = flux_to_mag(df['J'])
+
+    # Likewise also create new columns of the converted errors to magnitudes
+    df.loc[:, 'e_mag_U'] = flux_to_mag(df['eU'])
+    df.loc[:, 'e_mag_V'] = flux_to_mag(df['eV'])
+    df.loc[:, 'e_mag_J'] = flux_to_mag(df['eJ'])
+    
+    # Create UV, and VJ Colours
+    df.loc[:, 'UV'] = df['mag_U'] - df['mag_V']
+    df.loc[:, 'VJ'] = df['mag_V'] - df['mag_J']
+    
+    
+    
+    # Create a new column to mark the field that this data is from
+    df['field'] = fieldname 
+    
+    # rename the number in the id column to be prefixed by the fieldname, this is to avoid confusion when merging dataframes
+    df['id'] = fieldname + "_" + df['id'].astype(str)
+    
+    # return the created dataframe
+    return df
+
+####################################################################################################
+
+# We want to define a function to convert flux to absolute magnitude
+def flux_to_mag(flux):
+    ab_f = 25 - 2.5*np.log10(flux)
+    return ab_f
