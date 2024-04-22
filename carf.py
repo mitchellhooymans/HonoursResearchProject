@@ -12,6 +12,11 @@ import os
 from astLib import astSED
 from astropy.io import fits
 
+
+# This will be deprecated and replaced by the new version, which will run using astSED
+# as the basis for the project. i.e redshifting, colour or flux calculations
+# all will be done using astSED
+
 ####################################################################################################
 
 # Define global important values
@@ -27,9 +32,8 @@ from astropy.io import fits
 SKIRTOR_PARAMS = {'tau': [3, 5, 7, 9, 11], 'p': [0, 0.5,1, 1.5], 'q': [0, 0.5,1, 1.5], 'oa': [10, 20, 30, 40, 50, 60, 70, 80], 'rr': [10, 20, 30], 'i': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]}
 
 
-
-
 ####################################################################################################
+
 
 
 def read_skirtor_model(folder_path, optical_depth, p, q, opening_angle, radius_ratio, inclination):
