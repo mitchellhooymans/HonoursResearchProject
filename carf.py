@@ -787,7 +787,7 @@ def generate_UVJ_composite_set_colours(composite_sed_list, alpha_list, pb_U, pb_
         for sed_data in sed_alpha_data:
             # Create an SED object using astSED
         
-            
+            print(sed_data['lambda (Angstroms)'])
             wl = sed_data['lambda (Angstroms)']
             fl = sed_data['Total Flux (erg/s/cm^2/Angstrom)']
             sed = astSED.SED(wavelength=wl, flux=fl, z=0.0)    
