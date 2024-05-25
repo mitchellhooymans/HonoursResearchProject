@@ -233,3 +233,5 @@ plt.show()
 
 
 
+# We would also like to produce a blue and a red galaxy - associated with a elliptical and a spiral galaxy
+# plot the swire templates
