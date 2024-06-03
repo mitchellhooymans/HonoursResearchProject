@@ -438,7 +438,7 @@ def plot_galaxy_sed(wavelengths, fluxes, name, template_set):
         plt.xlabel('Wavelength (Angstroms)')
         plt.ylabel('Flux (erg/s/cm^2/Angstrom)')
         plt.title('SED of: '+ name + " (" + template_set + ")")
-        plt.grid()
+        #plt.grid()
         #plt.xlim([10**5, 10**6])
         plt.show()
         
