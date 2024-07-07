@@ -14,54 +14,61 @@ from astropy.io import fits
 
 ################################################################################################
 
-# Function to load and preprocess data
-
-def load_preprocess_data(galaxy_templates, agn_templates, colourspace):
-    """Function to load and preprocess data for the analysis pipeline."""
-    
-    # Load the galaxy templates
-    galaxy_templates = load_galaxy_templates(galaxy_template_set)
-    
-    # Load the AGN templates
-    agn_templates = load_agn_model(agn_model_name)
-    
-    # Load the astronomical colours
-    astronomical_colours = load_filters(colourspace)
-    
-    # Return the data
-    return galaxy_templates, agn_templates, astronomical_colours
-
-def load_galaxy_templates(galaxy_templates):
-    
-    
-    # Load the galaxy templates
-    galaxy_templates = galaxy_templates
-    
-    return galaxy_templates
-
-def load_agn_model(agn_templates):
-
-   # Load the AGN templates
-    agn_templates = agn_templates
-    
-    return agn_templates
+# Functions we need in this util file
+# Needs to be general enough to be reusable without the exact setup
 
 
-def load_filters(colourspace):
-    filter_1, filter_2, filter_3 = 0, 0, 0
-    # Switch statement to load the filters based on the colourspace
-    if colourspace == 'UVJ':
-        # Load the UVJ filters
+# Loading data
+# Loading models 
+# - in particular we are wanting to load SKIRTOR models
+# - and we are also wanting to load in template set
+# loading passbands based on a particular input
+# exporting data to output files
+
+
+# Given a colourspace, return the required filters
+def load_passbands(colorspace, path):
+    """
+    Load the passbands based on the provided colorspace.
+
+    Args:
+        colorspace (str): The colorspace (e.g., 'UVJ', 'ugr', 'IRAC', etc.).
+        path (str): The directory where the filter files are located.
+
+    Returns:
+        list: A list of astSED.Passband objects representing the loaded filters.
+    """
+
+    pb_path = path  # No need for os.path.join if you're already providing the full path
+
+    # Filter paths based on colorspace
+    filters = {
+        'UVJ': {
+            'U': 'Generic_Johnson.U.dat',
+            'V': 'Generic_Johnson.V.dat',
+            'J': '2MASS_2MASS.J.dat'
+        },
         
-        astronomical_colours = [a, b, c]
-    elif colourspace == 'NUVrK':
-        # Load the NUVrK filters
-        astronomical_colours = 'NUVrK'
-    elif colourspace == 'BzK':
-        # Load the BzK filters
-        astronomical_colours = 'BzK'
-    else:
-        # Load the default UVJ filters
+        'ugr': {
+            'u': 'SLOAN_SDSS.u.dat',
+            'g': 'SLOAN_SDSS.g.dat',
+            'r': 'SLOAN_SDSS.r.dat'
+        },
+        # Add more colorspaces and their filters as needed
+    }
 
-    
-    return astronomical_colours
+    # Check if colorspace is supported
+    if colorspace not in filters:
+        raise ValueError(f"Unsupported colorspace: {colorspace}")
+
+    # Load the passbands
+    passbands = []
+    for filter_name, filename in filters[colorspace].items():
+        pb_path = os.path.join(path, filename)
+        try:
+            pb = astSED.Passband(pb_path, normalise=False)
+            passbands.append(pb)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Filter file not found: {pb_path}")
+
+    return passbands
