@@ -27,7 +27,7 @@ from astropy.io import fits
 
 
 # Given a colourspace, return the required filters
-def load_passbands(colorspace, path):
+def load_passbands(colorspace, path='datasets\Filters'):
     """
     Load the passbands based on the provided colorspace.
 
@@ -43,18 +43,39 @@ def load_passbands(colorspace, path):
 
     # Filter paths based on colorspace
     filters = {
+        
+        # UVJ: Colourspace used for exploiting the bimodality of galaxies, 
+        # can be used to seperate quiescent and star-forming galaxies
         'UVJ': {
             'U': 'Generic_Johnson.U.dat',
             'V': 'Generic_Johnson.V.dat',
             'J': '2MASS_2MASS.J.dat'
         },
         
+        # ugr: Colourspace used to exploit the lyman break of galaxies (hydrogen absorption line)
+        # used a a redshift diagnostic technique
         'ugr': {
-            'u': 'SLOAN_SDSS.u.dat',
-            'g': 'SLOAN_SDSS.g.dat',
-            'r': 'SLOAN_SDSS.r.dat'
+            'u': 'Paranal_OmegaCAM.u_SDSS.dat',
+            'g': 'Paranal_OmegaCAM.g_SDSS.dat',
+            'r': 'Paranal_OmegaCAM.r_SDSS.dat'
         },
+        
+        # IRAC: Colourspace used to exploit the IR emission of galaxies 
+        #
+        'IRAC': { 
+            'I1' : 'Spitzer_IRAC.I1.dat',
+            'I2' : 'Spitzer_IRAC.I2.dat',
+            'I3' : 'Spitzer_IRAC.I3.dat',
+            'I4' : 'Spitzer_IRAC.I4.dat'
+        },
+        
         # Add more colorspaces and their filters as needed
+        
+        # There is the potential here to add the ability to add customer filter sets to the program that can be used to 
+        # explore AGN contamination in more detail through a custom filter function. 
+        
+        
+        
     }
 
     # Check if colorspace is supported
