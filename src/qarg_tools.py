@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
+
+# This will need to be adjusted later but we can just move the astSED file into the current directory.
 from astLib import astSED
 from astropy.io import fits
 
