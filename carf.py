@@ -817,6 +817,60 @@ def generate_UVJ_composite_set_colours(composite_sed_list, alpha_list, pb_U, pb_
 ####################################################################################################
 
 # Generate the UVJ colours for the composite SEDs
+def generate_compositeset_fluxes(composite_sed_list, alpha_list, filters):
+    """_summary_
+
+    Args:
+        composite_sed_list (_type_): _description_
+        alpha_list (_type_): _description_
+
+    Returns:
+        _type_: the uv and vj colours for each of the composite SEDs
+    """
+    
+    # Create some lists to store the full set of alpha colours
+    uv_specific_alpha_colours = []
+    vj_specific_alpha_colours = []
+    uv_colours =[]
+    vj_colours = []
+    
+    for i in range(len(alpha_list)):
+        # This will be the set of composites for the specific alpha value
+        sed_alpha_data = composite_sed_list[i]
+       
+        for sed_data in sed_alpha_data:
+            # Create an SED object using astSED
+        
+            print(sed_data['lambda (Angstroms)'])
+            wl = sed_data['lambda (Angstroms)']
+            fl = sed_data['Total Flux (erg/s/cm^2/Angstrom)']
+            sed = astSED.SED(wavelength=wl, flux=fl, z=0.0)    
+            
+            # create the uv and vj colours
+            uv = astSED.SED.calcColour(sed, pb_U, pb_V, magType='AB')
+            vj = astSED.SED.calcColour(sed, pb_V, pb_J, magType='AB')
+            
+            # Append colours to list
+            uv_colours.append(uv)
+            vj_colours.append(vj)
+        
+        # Append the uv, and vj colours     
+        uv_specific_alpha_colours.append(uv_colours)
+        vj_specific_alpha_colours.append(vj_colours)
+
+        # Reset the colours for the next set of alpha values
+        uv_colours = []
+        vj_colours = []
+        
+    # converting the colours to dataframes inside each list
+    #uv_specific_alpha_colours = [pd.DataFrame(uv) for uv in uv_specific_alpha_colours]
+    #vj_specific_alpha_colours = [pd.DataFrame(vj) for vj in vj_specific_alpha_colours]
+    
+    return uv_specific_alpha_colours, vj_specific_alpha_colours
+
+####################################################################################################
+
+# Generate the UVJ colours for the composite SEDs
 def generate_UVJ_composite_set_colours_np(composite_sed_list, alpha_list, pb_U, pb_V, pb_J):
     """_summary_
 
