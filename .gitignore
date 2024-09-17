@@ -3,3 +3,6 @@ Eazy Template Extractions/zfourgeSEDs/*
 *.h5
 datasets/student_fits_files/*
 datasets/full_zfourge_decomposed/*
+/outputs/composite_seds/UDS*
+/outputs/composite_seds/CDFS*
+/outputs/composite_seds/COSMOS*
