@@ -2,7 +2,9 @@ Eazy Template Extractions/cdfs.v1.6.1.h5
 Eazy Template Extractions/zfourgeSEDs/*
 *.h5
 datasets/student_fits_files/*
-datasets/full_zfourge_decomposed/*
+datasets/full_zfourge_decomposed/cdfs_best_models_fits
+datasets/full_zfourge_decomposed/cosmos_best_models_fits
+datasets/full_zfourge_decomposed/uds_best_models_fits
 /outputs/composite_seds/UDS*
 /outputs/composite_seds/CDFS*
 /outputs/composite_seds/COSMOS*
