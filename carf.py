@@ -1157,6 +1157,12 @@ def read_zfourge_data(fieldname, folderpath): # Define a function to read in zfo
     df.loc[:, 'e_mag_V'] = flux_to_mag(df['eV'])
     df.loc[:, 'e_mag_J'] = flux_to_mag(df['eJ'])
     
+    # instead use the flux to mag error function
+    df.loc[:, 'e_mag_U'] = flux_to_mag_error(df['U'], df['eU'])
+    df.loc[:, 'e_mag_V'] = flux_to_mag_error(df['V'], df['eV'])
+    df.loc[:, 'e_mag_J'] = flux_to_mag_error(df['J'], df['eJ'])
+    
+    
     # Create UV, and VJ Colours
     df.loc[:, 'UV'] = df['mag_U'] - df['mag_V']
     df.loc[:, 'VJ'] = df['mag_V'] - df['mag_J']
@@ -1175,6 +1181,15 @@ def read_zfourge_data(fieldname, folderpath): # Define a function to read in zfo
 ####################################################################################################
 
 # We want to define a function to convert flux to absolute magnitude
-def flux_to_mag(flux):
+def flux_to_mag(flux): # only works for flux
     ab_f = 25 - 2.5*np.log10(flux)
     return ab_f
+
+
+####################################################################################################
+
+# Seperate function for mag error
+def flux_to_mag_error(flux, error):
+    ab_f = 25 - 2.5*np.log10(flux)
+    ab_e = 2.5 * error / (flux * np.log(10))
+    return ab_e
