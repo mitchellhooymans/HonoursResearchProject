@@ -218,7 +218,7 @@ def create_type2_skirtor_agn(folder_path):
     q = SKIRTOR_PARAMS['q'][0] # Make this zero, similar to the Ciesla paper
     oa = SKIRTOR_PARAMS['oa'][4] # opening angle of 50 degrees
     rr = SKIRTOR_PARAMS['rr'][1] # ratio of 20
-    i = SKIRTOR_PARAMS['i'][9] # inclination of 0 degrees
+    i = SKIRTOR_PARAMS['i'][9] # inclination of 90 degrees
     
     
     # Create the dataframe
