@@ -8,3 +8,4 @@ datasets/full_zfourge_decomposed/uds_best_models_fits
 /outputs/composite_seds/UDS*
 /outputs/composite_seds/CDFS*
 /outputs/composite_seds/COSMOS*
+SyntheticPhotometry/*
