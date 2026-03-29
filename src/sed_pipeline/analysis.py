@@ -25,6 +25,12 @@ def color_error(f1, f2, e1, e2):
     a = 2.5 / np.log(10)
     return a * np.sqrt((e1/f1)**2 + (e2/f2)**2)
 
+def calculate_vector_magnitude(vj1, uv1, vj2, uv2):
+    """
+    Calculates the Euclidean distance (vector magnitude) between two UVJ positions.
+    """
+    return np.sqrt((np.asarray(vj1) - np.asarray(vj2))**2 + (np.asarray(uv1) - np.asarray(uv2))**2)
+
 def calculate_mean_vector_offset(vj_alpha, uv_alpha, vj_initial, uv_initial):
     """
     Calculates the mean vector offset across a population.
