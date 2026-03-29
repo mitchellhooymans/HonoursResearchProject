@@ -85,3 +85,73 @@ def plot_uvj_diagram(vj, uv, classifications=None, ax=None, title="UVJ Colour-Co
         ax.legend(loc='lower right')
         
     return ax
+
+def plot_ugr_diagram(gr, ug, ax=None, title="ugr Colour-Colour Diagram"):
+    """
+    Plots the ugr diagram with the U-dropout selection wedge.
+    """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(8, 8))
+        
+    gr = np.asarray(gr)
+    ug = np.asarray(ug)
+    
+    ax.scatter(gr, ug, c='k', s=10, alpha=0.4)
+    
+    ax.set_xlim([-1, 4])
+    ax.set_ylim([-1, 8.5])
+    ax.set_xlabel('g - r')
+    ax.set_ylabel('u - g')
+    ax.set_title(title)
+    
+    # U-dropout selection wedge
+    u_rule = [[1.2, 9], [1.2, 2.2], [0.6, 1.6], [-3, 1.6], [-3, 9], [1.2, 9]]
+    ax.add_patch(plt.Polygon(u_rule, closed=True, fill=True, facecolor=(1, 0, 0, 0.05), edgecolor='k', lw=1.5, label='U-dropout (2.6 < z < 3.6)'))
+    
+    # Do not call ax.legend() blindly if no scatter has labels, but here we labelled the wedge
+    ax.legend(loc='upper right')
+    return ax
+
+def plot_irac_diagram(f5836, f8045, ax=None, title="IRAC Colour-Colour Diagram"):
+    """
+    Plots the IRAC colour-colour diagram with the Lacy AGN selection wedge.
+    """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(8, 8))
+        
+    x = np.asarray(f5836)
+    y = np.asarray(f8045)
+    
+    ax.scatter(x, y, c='k', s=10, alpha=0.4)
+    
+    xmax = 0.8
+    ymax = 1.2
+    xmin = -0.6
+    ymin = -0.8
+    
+    ax.set_xlim([xmin, xmax])
+    ax.set_ylim([ymin, ymax])
+    ax.set_xlabel('log(f$_{5.8}$/f$_{3.6}$)')
+    ax.set_ylabel('log(f$_{8.0}$/f$_{4.5}$)')
+    ax.set_title(title)
+    
+    # Lacy wedge boundaries: x > -0.1, y > -0.2, y < 0.8*x + 0.5
+    # Find minimum valid x for plotting the wedge nicely
+    lacy_selection_condition = (x > -0.1) & (y > -0.2) & (y < 0.8 * x + 0.5)
+    min_x = np.nanmin(x[lacy_selection_condition]) if np.any(lacy_selection_condition) else -0.1
+    
+    # Clamp min_x to not go below -0.1 to maintain wedge shape
+    min_x = max(min_x, -0.1)
+    
+    wedge_vertices = [
+        (xmax, -0.2),
+        (-0.1, -0.2),
+        (-0.1, 0.8 * min_x + 0.5),
+        (((ymax - 0.5) / 0.8), ymax),
+        (xmax, ymax), # Close it nicely on the right edge
+        (xmax, -0.2)
+    ]
+    ax.add_patch(plt.Polygon(wedge_vertices, closed=True, fill=True, facecolor=(1, 0, 0, 0.05), edgecolor='r', lw=1.5, label='Lacy Wedge'))
+    
+    ax.legend(loc='lower right')
+    return ax
