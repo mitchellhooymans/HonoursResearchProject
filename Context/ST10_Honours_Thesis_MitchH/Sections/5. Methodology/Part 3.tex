@@ -1,0 +1,19 @@
+\section{Quantifying Contamination and Error Propogation}
+\subsection{Mean Vector Offset}
+
+To quantify the influence of AGN on galaxy colours, we calculate how a galaxy's position in colour space changes as the fractional contribution of the AGN ($\alpha$) increases. Each galaxy's colour is represented by a vector, $\mathbf{C}_i(\alpha)$, with components corresponding to different colour indices (e.g., $U-V$, $V-J$).  By calculating the difference between the galaxy's colour vector with no AGN contribution ($\mathbf{C}_i(\alpha = 0)$) and its colour vector at each $\alpha$, we obtain a set of colour offset vectors. These vectors represent the shift in colour space induced by the AGN.  To assess the overall impact, we average these colour offset vectors across all galaxies, resulting in the mean colour offset vector,  $\mathbf{M_C}(\alpha)$, as defined in the following equation:
+\begin{align*}
+\mathbf{M_C}(\alpha) &= \frac{1}{N} \sum_{i=1}^{N} \left[ \mathbf{C}_i(\alpha) - \mathbf{C}_i(\alpha = 0) \right]
+\end{align*}
+This equation calculates the mean colour offset vector ($\mathbf{M_C}(\alpha)$) caused by an AGN with a contribution fraction of $\alpha$, where $N$ is the number of galaxies, $\mathbf{C}_i(\alpha)$ is the colour vector of the $i$-th galaxy with an AGN contribution, and $\mathbf{C}_i(\alpha = 0)$ is the colour vector of the same galaxy without an AGN contribution.
+
+\subsection{Error Propagation}
+Due to the theoretical nature of the GALSEDATLAS + AGN composite set, no error was propagated into the colour space for the theoretical models; this is discussed later in the thesis. While no error propagation was undertaken for the theoretical models, error propagation was carried out for the observational data in ZFOURGE due to the availability of photometric flux errors, $\Delta f_{filter}$. Flux errors for the UVJ filters were obtained from ZFOURGE which are based on the normalised median absolute deviation (NMAD; \citealt{straatman_fourstar_2016}) of pixel counts for a source. While a complete set of photometric flux errors for the U, V and J filters were available for all data sources, there were limited available photometric flux errors in the u, g, and r filters. To account for this, only a subset of the sample containing the photometric errors was investigated. We used standard error propagation to calculate the flux errors in our associated colour index.
+\begin{equation*}
+\Delta C = \sqrt{ \left( \frac{\partial C(f_1, f_2)}{\partial f_1} \cdot \Delta f_1 \right)^2 + \left( \frac{\partial C(f_1, f_2)}{\partial f_2} \cdot \Delta f_2 \right)^2 }
+\end{equation*}
+Utilizing the equation for colour index $C = M_1 - M_2 = -2.5log_{10}\left(\frac{f_1}{f_2}\right)$ with the above equation, we found the final uncertainty equation to be:
+\begin{equation*}
+\Delta C = \frac{2.5}{\log_{10}}\sqrt{\left(\frac{\Delta f_1}{f_1}\right)^2 + \left(\frac{\Delta f_2}{f_2}\right)^2}    
+\end{equation*}
+To assess the uncertainty in our colour measurements, we calculated the error for each colour index of every source using the equation above. These individual colour errors were averaged to obtain a representative colour space error. This error was incorporated into our analysis of the UVJ diagram to investigate the impact of AGN on galaxy colours. Specifically, we examined whether a galaxy's position shift due to an AGN contribution exceeded the estimated colour space error. If the AGN-induced shift consistently moved a galaxy beyond its error bars in a particular direction within the UVJ diagram. To calculate the errors in the star-forming, quiescent, and dusty fractions and to account for errors in completeness and correct identification, we used the adjusted Wald confidence interval method to generate a confidence interval for our selections. 

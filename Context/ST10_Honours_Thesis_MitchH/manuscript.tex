@@ -1,0 +1,127 @@
+% Preamble
+\documentclass[openany]{book}
+\bibliographystyle{aasjournal}
+\makeatletter
+\def\@makechapterhead#1{%
+  \vspace*{50\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+      \if@mainmatter
+        \huge\bfseries \thechapter\space % Remove the word "Chapter"
+      \fi
+    \fi
+    \interlinepenalty\@M
+    \Huge \bfseries #1\par\nobreak
+    \vskip 40\p@
+  }}
+\makeatother
+
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+    \geometry{margin=1.5in, top=1in, bottom=1in}
+    \setlength{\parindent}{1em}
+    \setlength{\parskip}{0.5em}
+\usepackage{graphicx}
+\usepackage{subfiles}
+\usepackage[sectionbib]{natbib}
+\usepackage[linktoc=all,
+    colorlinks=true, 
+    linkcolor=black, 
+    citecolor=black]
+    {hyperref}
+\usepackage{doi}
+\usepackage{lipsum}
+\usepackage{fancyhdr}
+    \renewcommand{\sectionmark}[1]{\markright{\thesection~~~#1}}
+    \renewcommand{\chaptermark}[1]{\markboth{\if@mainmatter \fi#1}{}}
+\usepackage[acronym,nonumberlist,nogroupskip,nopostdot,toc]{glossaries}
+    \loadglsentries{Sections/Frontmatter/Acronyms}
+    \makeglossaries
+\usepackage{setspace}
+\usepackage{emptypage}
+\usepackage[titletoc]{appendix}
+\usepackage{enumitem}
+\usepackage{subcaption} 
+
+% Start
+\begin{document}
+\frontmatter
+
+% Style
+\pagestyle{fancy}
+\fancyhead[RO,LE]{\thepage}
+\fancyhead[RE]{\nouppercase{\leftmark}}
+\fancyhead[LO]{\nouppercase{\rightmark}}
+\fancyfoot{} 
+
+% Frontmatter
+\subfile{Sections/Frontmatter/Title Page}
+\subfile{Sections/Frontmatter/Quote}
+\subfile{Sections/Frontmatter/Dedication}
+\subfile{Sections/Frontmatter/Contributions} 
+\subfile{Sections/Frontmatter/Acknowledgements}
+\subfile{Sections/Frontmatter/Abstract}
+% Include Abstract in Table of Contents
+\addcontentsline{toc}{chapter}{Abstract}
+
+%% Add the list of figures /tables
+% \listoffigures
+% \listoftables
+
+% Table of contents
+\newgeometry{margin=1.25in}
+\renewcommand*\contentsname{Table of Contents}
+\tableofcontents
+
+
+% Introduction
+\mainmatter
+\chapter{Introduction}
+\subfile{Sections/1. Introduction/Part 1}
+
+% Aims
+\chapter{Aims and Hypothesis}
+\subfile{Sections/2. Aims and Hypothesis/Part 1}
+
+% Literature Review
+\chapter{Literature Review}
+\subfile{Sections/3. Literature Review/Part 1}
+\subfile{Sections/3. Literature Review/Part 2}
+
+% ZFOURGE Chapter
+\chapter{The ZFOURGE Survey}
+\subfile{Sections/4. ZFOURGE/Part 1}
+
+% Methodology
+\chapter{Methodology}
+\subfile{Sections/5. Methodology/Part 1}
+\subfile{Sections/5. Methodology/Part 2}
+\subfile{Sections/5. Methodology/Part 3}
+
+% Results
+\chapter{Results}
+\subfile{Sections/6. Results/Part 1}
+\subfile{Sections/6. Results/Part 2}
+
+% Discussion
+\chapter{Discussion}
+\subfile{Sections/7. Discussion/Part 1}
+
+% Conclusion and Future Directions
+\chapter{Conclusion and Future Directions}
+\subfile{Sections/8. Conclusion and Future Directions/Part 1}
+
+
+% References
+\renewcommand{\bibsection}{\chapter*{References}}
+\addcontentsline{toc}{chapter}{References}
+\bibliography{references.bib}
+
+\thispagestyle{empty}
+
+
+% Appendices
+\subfile{Sections/Appendices/A}
+%\subfile{Sections/Appendices/B}
+
+\end{document}
