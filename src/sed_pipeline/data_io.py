@@ -9,6 +9,7 @@ import os
 import numpy as np
 import pandas as pd
 from astropy.io import fits
+from astropy.table import Table
 
 def read_skirtor_model(folder_path, optical_depth, p, q, opening_angle, radius_ratio, inclination):
     """
@@ -54,6 +55,27 @@ def read_brown_galaxy_templates(folder_path):
             
     return df_list, objname_list
 
+def read_swire_templates(folder_path):
+    """
+    Reads all SWIRE template files (.sed) from the given folder.
+    """
+    df_list = []
+    objname_list = []
+    for file in os.listdir(folder_path):
+        if file.endswith('.sed'):
+            objname = file.split('_template_norm.sed')[0]
+            filepath = os.path.join(folder_path, file)
+            data = np.loadtxt(filepath)
+            df = pd.DataFrame(data)
+            
+            # Name columns appropriately
+            df.columns = ['lambda (Angstroms)', 'Total Flux (erg/s/cm^2/Angstrom)']
+            
+            df_list.append(df)
+            objname_list.append(objname)
+            
+    return df_list, objname_list
+
 def read_zfourge_data(fieldname, folderpath):
     """
     Reads ZFOURGE catalogs and extracts necessary fluxes, identifiers, and properties.
@@ -70,10 +92,10 @@ def read_zfourge_data(fieldname, folderpath):
     eazy_file = os.path.join(folderpath, zfourge_fields[fieldname][2])
     sfr_file = os.path.join(folderpath, zfourge_fields[fieldname][3])
     
-    df = pd.DataFrame(np.array(fits.open(catalog_file)[1].data).byteswap().newbyteorder())
-    rest_df = pd.DataFrame(np.array(fits.open(rest_file)[1].data).byteswap().newbyteorder())
-    eazy_df = pd.DataFrame(np.array(fits.open(eazy_file)[1].data).byteswap().newbyteorder())
-    sfr_df = pd.DataFrame(np.array(fits.open(sfr_file)[1].data).byteswap().newbyteorder())
+    df = Table.read(catalog_file).to_pandas()
+    rest_df = Table.read(rest_file).to_pandas()
+    eazy_df = Table.read(eazy_file).to_pandas()
+    sfr_df = Table.read(sfr_file).to_pandas()
     
     df.rename(columns={'Seq': 'id'}, inplace=True)
     rest_df.rename(columns={'Seq': 'id', 'FU': 'U', 'e_FU': 'eU', 'FV': 'V', 'e_FV': 'eV', 'FJ': 'J', 'e_FJ': 'eJ'}, inplace=True)
@@ -94,9 +116,7 @@ def read_cigale_best_model(filepath, redshift=None, restframe=True):
     Reads a CIGALE best_model.fits file and converts to F_lambda units.
     Optionally redshifts to restframe.
     """
-    with fits.open(filepath) as hdul:
-        data = hdul[1].data
-        df = pd.DataFrame(np.array(data).byteswap().newbyteorder())
+    df = Table.read(filepath).to_pandas()
     
     # CIGALE wavelength is in nm -> convert to Angstroms
     df['wavelength'] = df['wavelength'] * 10
