@@ -155,3 +155,57 @@ def plot_irac_diagram(f5836, f8045, ax=None, title="IRAC Colour-Colour Diagram")
     
     ax.legend(loc='lower right')
     return ax
+
+def plot_composite_sed_progression(composite_data, filters, population_names=['Star-forming', 'Quiescent', 'Dusty'], 
+                                   alphas_to_label=[0.0, 0.5, 1.0], output_path=None):
+    """
+    Recreates Fig 6: 1D SED progression for each population type.
+    composite_data: Dictionary {pop_name: {alpha: SED DataFrame}}
+    filters: Dictionary {filter_name: Passband object}
+    """
+    fig, axes = plt.subplots(len(population_names), 1, figsize=(12, 12), sharex=True)
+    if len(population_names) == 1:
+        axes = [axes]
+        
+    for i, pop in enumerate(population_names):
+        ax = axes[i]
+        pop_seds = composite_data.get(pop, {})
+        
+        # Use a colormap for alpha
+        cmap = plt.cm.plasma
+        
+        sorted_alphas = sorted(pop_seds.keys())
+        for alpha in sorted_alphas:
+            sed_df = pop_seds[alpha]
+            # Label only specific alphas to keep legend clean
+            label = f'Alpha = {int(alpha*100)}%' if any(np.isclose(alpha, a) for a in alphas_to_label) else None
+            ax.loglog(sed_df['lambda (Angstroms)'], sed_df['Total Flux (erg/s/cm^2/Angstrom)'], 
+                      color=cmap(alpha), alpha=0.7, label=label)
+        
+        # Overlay filters (U, V, J)
+        # Scale transmission for visualization (sc=1e-2 as per honours script)
+        sc = 1e-2
+        for f_name in ['U', 'V', 'J']:
+            if f_name in filters:
+                pb = filters[f_name]
+                # Normalize transmission for the plot if it isn't
+                trans = pb.transmission / np.max(pb.transmission) if np.max(pb.transmission) > 0 else pb.transmission
+                ax.loglog(pb.wavelength, sc * trans, lw=2, label=f_name if i==0 else None)
+                # Plot the filter letter
+                ax.text(np.mean(pb.wavelength), sc * 0.1, f_name, fontsize=14, fontweight='bold', ha='center')
+
+        ax.set_ylabel('Flux (erg/s/cm$^2$/$\AA$)')
+        ax.set_title(f'Composite SED Progression: {pop}', fontweight='bold')
+        
+        ax.set_xlim(1e2, 3.4e5)
+        ax.set_ylim(1e-5, 1e3)
+        
+        if i == 0:
+            ax.legend(loc='upper right', ncol=2, fontsize=10)
+
+    axes[-1].set_xlabel('Wavelength ($\AA$)')
+    plt.tight_layout()
+    
+    if output_path:
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    return fig, axes
