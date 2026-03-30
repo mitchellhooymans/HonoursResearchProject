@@ -10,3 +10,5 @@ datasets/full_zfourge_decomposed/uds_best_models_fits
 /outputs/composite_seds/COSMOS*
 SyntheticPhotometry/*
 legacy
+honours_outputs
+.venv

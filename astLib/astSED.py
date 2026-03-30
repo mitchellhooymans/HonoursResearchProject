@@ -10,8 +10,14 @@ for fitting broadband photometry using these models.
 """
 
 #------------------------------------------------------------------------------------------------------------
-import sys
 import numpy
+import sys
+
+# Handle NumPy 1.x and 2.x compatibility for trapezoid integration
+if hasattr(numpy, 'trapezoid'):
+    _trapezoid = numpy.trapezoid
+else:
+    _trapezoid = numpy.trapz
 import math
 import operator
 try:
@@ -85,7 +91,7 @@ class Passband:
         self.transmission=sortedMerged[:, 1]
         
         if normalise == True:
-            self.transmission=self.transmission/numpy.trapz(self.transmission, self.wavelength)
+            self.transmission=self.transmission/_trapezoid(self.transmission, self.wavelength)
         
         # Store a ready-to-go interpolation object to speed calculation of fluxes up
         self.interpolator=interpolate.interp1d(self.wavelength, self.transmission, kind='linear')
@@ -152,8 +158,8 @@ class Passband:
         
         """
         
-        a=numpy.trapz(self.transmission*self.wavelength, self.wavelength)
-        b=numpy.trapz(self.transmission/self.wavelength, self.wavelength)
+        a=_trapezoid(self.transmission*self.wavelength, self.wavelength)
+        b=_trapezoid(self.transmission/self.wavelength, self.wavelength)
         effWavelength=numpy.sqrt(a/b)
         
         return effWavelength
@@ -182,7 +188,7 @@ class TopHatPassband(Passband):
         self.transmission=numpy.ones(self.wavelength.shape, dtype = float)
         
         if normalise == True:
-            self.transmission=self.transmission/numpy.trapz(self.transmission, self.wavelength)
+            self.transmission=self.transmission/_trapezoid(self.transmission, self.wavelength)
         
         # Store a ready-to-go interpolation object to speed calculation of fluxes up
         self.interpolator=interpolate.interp1d(self.wavelength, self.transmission, kind='linear')
@@ -343,7 +349,7 @@ class SED:
         
         mask=numpy.logical_and(numpy.greater(self.wavelength, wavelengthMin), \
                                numpy.less(self.wavelength, wavelengthMax))
-        flux=numpy.trapz(self.flux[mask], self.wavelength[mask])
+        flux=_trapezoid(self.flux[mask], self.wavelength[mask])
         
         return flux
         
@@ -373,9 +379,9 @@ class SED:
         self.wavelength=self.wavelength+self.z0wavelength
         self.flux=self.flux+self.z0flux
         
-        z0TotalFlux=numpy.trapz(self.z0wavelength, self.z0flux)
+        z0TotalFlux=_trapezoid(self.z0wavelength, self.z0flux)
         self.wavelength=self.wavelength*(1.0+z)
-        zTotalFlux=numpy.trapz(self.wavelength, self.flux)
+        zTotalFlux=_trapezoid(self.wavelength, self.flux)
         self.flux=self.flux*(z0TotalFlux/zTotalFlux)
         self.z=z
         
@@ -399,7 +405,7 @@ class SED:
         sedFluxSlice=self.flux[totalCut]
         sedWavelengthSlice=self.wavelength[totalCut]
         
-        self.flux=self.flux/numpy.trapz(abs(sedFluxSlice), sedWavelengthSlice)#self.wavelength)
+        self.flux=self.flux/_trapezoid(abs(sedFluxSlice), sedWavelengthSlice)#self.wavelength)
 
     def normaliseToMag(self, ABMag, passband):
         """Normalises the SED to match the flux equivalent to the given AB magnitude in the given passband.
@@ -435,8 +441,8 @@ class SED:
         
         wavelengthRange=numpy.arange(minWavelength, maxWavelength, 5.0)
         
-        matchFlux=numpy.trapz(interpMatch(wavelengthRange), wavelengthRange)
-        selfFlux=numpy.trapz(interpSelf(wavelengthRange), wavelengthRange)
+        matchFlux=_trapezoid(interpMatch(wavelengthRange), wavelengthRange)
+        selfFlux=_trapezoid(interpSelf(wavelengthRange), wavelengthRange)
         
         self.flux=self.flux*(matchFlux/selfFlux)
 
@@ -459,8 +465,8 @@ class SED:
         # Use linear interpolation to rebin the passband to the same dimensions as the 
         # part of the SED we're interested in
         sedInBand=passband.interpolator(sedWavelengthSlice)*sedFluxSlice   
-        totalFlux=numpy.trapz(sedInBand*sedWavelengthSlice, sedWavelengthSlice)        
-        totalFlux=totalFlux/numpy.trapz(passband.interpolator(sedWavelengthSlice)\
+        totalFlux=_trapezoid(sedInBand*sedWavelengthSlice, sedWavelengthSlice)        
+        totalFlux=totalFlux/_trapezoid(passband.interpolator(sedWavelengthSlice)\
                             *sedWavelengthSlice, sedWavelengthSlice)
                             
         return totalFlux      
@@ -635,8 +641,8 @@ class VegaSED(SED):
         self.z=0.0
         
         #if normalise == True:
-            #self.flux=self.flux/numpy.trapz(self.flux, self.wavelength)
-            #self.z0flux=self.z0flux/numpy.trapz(self.z0flux, self.z0wavelength)
+            #self.flux=self.flux/_trapezoid(self.flux, self.wavelength)
+            #self.z0flux=self.z0flux/_trapezoid(self.z0flux, self.z0wavelength)
         
 #------------------------------------------------------------------------------------------------------------
 class StellarPopulation:
