@@ -25,8 +25,11 @@ ALPHA_VALUES = np.linspace(0, 1, 11)
 # ==============================================================================
 # File Paths and Directories
 # ==============================================================================
-RAW_DATA_DIR = "datasets"
-PROCESSED_DATA_DIR = "outputs"
+# Define base directory relative to this file (M:\GitHub\HonoursResearchProject)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+RAW_DATA_DIR = os.path.join(PROJECT_ROOT, "datasets")
+PROCESSED_DATA_DIR = os.path.join(PROJECT_ROOT, "outputs")
 
 ZFOURGE_CATALOG_DIR = os.path.join(RAW_DATA_DIR, "zfourge")
 GALSEDATLAS_DIR = os.path.join(RAW_DATA_DIR, "Templates")

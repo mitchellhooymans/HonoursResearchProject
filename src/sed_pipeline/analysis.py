@@ -103,6 +103,7 @@ def calculate_population_fractions(classifications):
     """
     Calculates the fraction of Quiescent (0), Star-forming (1), and Dusty (2) galaxies.
     """
+    classifications = np.asarray(classifications)
     total = len(classifications)
     if total == 0:
         return 0, 0, 0
@@ -110,3 +111,76 @@ def calculate_population_fractions(classifications):
     sf_frac = np.sum(classifications == 1) / total
     d_frac = np.sum(classifications == 2) / total
     return q_frac, sf_frac, d_frac
+
+def classify_uvj(vj, uv):
+    """
+    Classifies galaxies based on rest-frame UVJ colours.
+    Returns: 0 (Quiescent), 1 (Star-forming), 2 (Dusty)
+    """
+    vj = np.asarray(vj)
+    uv = np.asarray(uv)
+    
+    # Initialize as Star-forming (1)
+    results = np.ones_like(vj, dtype=int)
+    
+    # Quiescent Region (standard definition)
+    is_quiescent = (uv > 1.3) & (vj < 1.6) & (uv > 0.88 * vj + 0.69)
+    results[is_quiescent] = 0
+    
+    # Dusty Region (non-quiescent with V-J > 1.2)
+    is_dusty = (~is_quiescent) & (vj > 1.2)
+    results[is_dusty] = 2
+    
+    return results
+
+def is_in_giavalisco_wedge(u_g, g_r):
+    """
+    Evaluates if a set of ugr colours falls within the Giavalisco selection wedge
+    used for identifying U-dropouts (Lyman break galaxies at z ~ 3).
+    """
+    return (u_g >= 1.0 + g_r) & (u_g >= 1.6) & (g_r <= 1.2)
+
+def classify_ugr_selection(u_g, g_r, true_redshift):
+    """
+    Classifies a source into Correct Identification, Misidentification, or Missed Selection
+    based on its ugr colours and true redshift relative to the Giavalisco target range (2.6 < z < 3.6).
+    """
+    in_wedge = is_in_giavalisco_wedge(u_g, g_r)
+    in_redshift_range = (true_redshift > 2.6) & (true_redshift < 3.6)
+    
+    if in_wedge and in_redshift_range:
+        return 'Correct Identification'
+    elif in_wedge and not in_redshift_range:
+        return 'Misidentification'
+    elif not in_wedge and in_redshift_range:
+        return 'Missed Selection'
+    else:
+        # Not in wedge, not in target range (correctly excluded)
+        return 'Correct Identification'
+
+def is_in_lacy_wedge(f5836, f8045):
+    """
+    Evaluates if a set of IRAC colours falls within the Lacy selection wedge
+    used for identifying AGN. f5836 = log10(f_5.8 / f_3.6), f8045 = log10(f_8.0 / f_4.5).
+    """
+    cond1 = f5836 > -0.1
+    cond2 = f8045 > -0.2
+    cond3 = f8045 < (0.8 * f5836) + 0.5
+    return cond1 & cond2 & cond3
+
+def calculate_completeness_from_df(df, type_col='AGN_Type', alpha_col='Alpha', classification_col='Classification', correct_val='Correct Identification', missed_val='Missed Selection'):
+    """
+    Calculates the completeness metric for each AGN type and alpha value from a results DataFrame.
+    Completeness = N_correct / (N_correct + N_missed)
+    """
+    results = []
+    for agn_type in df[type_col].unique():
+        subset = df[df[type_col] == agn_type]
+        for alpha in subset[alpha_col].unique():
+            alpha_df = subset[subset[alpha_col] == alpha]
+            n_correct = len(alpha_df[alpha_df[classification_col] == correct_val])
+            n_missed = len(alpha_df[alpha_df[classification_col] == missed_val])
+            
+            completeness = n_correct / (n_correct + n_missed) if (n_correct + n_missed) > 0 else 0
+            results.append({type_col: agn_type, alpha_col: alpha, 'Completeness': completeness})
+    return pd.DataFrame(results)

@@ -8,11 +8,17 @@ including alignment, interpolation, and creating composite combinations.
 import numpy as np
 import pandas as pd
 
+# Handle NumPy 1.x and 2.x compatibility for trapezoid integration
+if hasattr(np, 'trapezoid'):
+    _trapezoid = np.trapezoid
+else:
+    _trapezoid = np.trapz
+
 def integral_flux(wavelengths, flux):
     """
     Computes the integrated flux of an SED over its wavelength range.
     """
-    return np.trapz(flux, wavelengths)
+    return _trapezoid(flux, x=wavelengths)
 
 def compute_scaling_factor(agn_wavelengths, agn_flux, galaxy_wavelengths, galaxy_flux):
     """
