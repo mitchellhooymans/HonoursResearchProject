@@ -69,7 +69,8 @@ def plot_uvj_diagram(vj, uv, classifications=None, ax=None, title="UVJ Colour-Co
     ax.set_ylim([0, 2.5])
     ax.set_xlabel('Restframe V - J')
     ax.set_ylabel('Restframe U - V')
-    ax.set_title(title)
+    if title:
+        ax.set_title(title)
     
     # Selection Patches
     path_q = [[-0.5, 1.3], [0.85, 1.3], [1.6, 1.95], [1.6, 2.5], [-0.5, 2.5], [-0.5, 1.3]]
@@ -102,7 +103,8 @@ def plot_ugr_diagram(gr, ug, ax=None, title="ugr Colour-Colour Diagram"):
     ax.set_ylim([-1, 8.5])
     ax.set_xlabel('g - r')
     ax.set_ylabel('u - g')
-    ax.set_title(title)
+    if title:
+        ax.set_title(title)
     
     # U-dropout selection wedge
     u_rule = [[1.2, 9], [1.2, 2.2], [0.6, 1.6], [-3, 1.6], [-3, 9], [1.2, 9]]
@@ -133,7 +135,8 @@ def plot_irac_diagram(f5836, f8045, ax=None, title="IRAC Colour-Colour Diagram")
     ax.set_ylim([ymin, ymax])
     ax.set_xlabel('log(f$_{5.8}$/f$_{3.6}$)')
     ax.set_ylabel('log(f$_{8.0}$/f$_{4.5}$)')
-    ax.set_title(title)
+    if title:
+        ax.set_title(title)
     
     # Lacy wedge boundaries: x > -0.1, y > -0.2, y < 0.8*x + 0.5
     # Find minimum valid x for plotting the wedge nicely
@@ -157,7 +160,7 @@ def plot_irac_diagram(f5836, f8045, ax=None, title="IRAC Colour-Colour Diagram")
     return ax
 
 def plot_composite_sed_progression(composite_data, filters, population_names=['Star-forming', 'Quiescent', 'Dusty'], 
-                                   alphas_to_label=[0.0, 0.5, 1.0], output_path=None):
+                                   alphas_to_label=[0.0, 0.5, 1.0], output_path=None, show_title=True):
     """
     Recreates Fig 6: 1D SED progression for each population type.
     composite_data: Dictionary {pop_name: {alpha: SED DataFrame}}
@@ -195,7 +198,8 @@ def plot_composite_sed_progression(composite_data, filters, population_names=['S
                 ax.text(np.mean(pb.wavelength), sc * 0.1, f_name, fontsize=14, fontweight='bold', ha='center')
 
         ax.set_ylabel('Flux (erg/s/cm$^2$/$\AA$)')
-        ax.set_title(f'Composite SED Progression: {pop}', fontweight='bold')
+        if show_title:
+            ax.set_title(f'Composite SED Progression: {pop}', fontweight='bold')
         
         ax.set_xlim(1e2, 3.4e5)
         ax.set_ylim(1e-5, 1e3)
