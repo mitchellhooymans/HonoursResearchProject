@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"M:\\\\GitHub\\\\HonoursResearchProject\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(dir /s /b *.ipynb)",
+      "Bash(Get-ChildItem *)",
+      "PowerShell(Get-ChildItem -Path \"M:\\\\GitHub\\\\HonoursResearchProject\\\\outputs\\\\\" -File | ForEach-Object { $_.FullName } | Sort-Object)",
+      "Bash(jupyter --version)",
+      "Bash(where jupyter *)",
+      "Bash(jupyter nbconvert *)",
+      "Bash(.venv/Scripts/pip install *)",
+      "PowerShell(& \"M:\\\\GitHub\\\\HonoursResearchProject\\\\.venv\\\\Scripts\\\\python.exe\" -m pip install seaborn -q; echo \"done\")",
+      "Bash(python -m pip install seaborn -q)",
+      "Bash(python -c \"import seaborn\")",
+      "Bash(python *)",
+      "Bash(jupyter kernelspec *)",
+      "Bash(del _run_irac.py)",
+      "Bash(.venv/Scripts/python.exe _run_irac.py)",
+      "Bash(.venv/Scripts/python.exe _run_master.py)"
+    ]
+  }
+}
