@@ -7,6 +7,7 @@ completeness fractions, and galaxy population fractions.
 
 import numpy as np
 import pandas as pd
+from .photometry import classify_uvj as _classify_uvj_poly
 
 def flux_to_mag_error(flux, error):
     """
@@ -116,22 +117,10 @@ def classify_uvj(vj, uv):
     """
     Classifies galaxies based on rest-frame UVJ colours.
     Returns: 0 (Quiescent), 1 (Star-forming), 2 (Dusty)
+    Delegates to photometry.classify_uvj which uses the polygon path that
+    exactly matches the visual region boundaries on the UVJ diagram.
     """
-    vj = np.asarray(vj)
-    uv = np.asarray(uv)
-    
-    # Initialize as Star-forming (1)
-    results = np.ones_like(vj, dtype=int)
-    
-    # Quiescent Region (standard definition)
-    is_quiescent = (uv > 1.3) & (vj < 1.6) & (uv > 0.88 * vj + 0.69)
-    results[is_quiescent] = 0
-    
-    # Dusty Region (non-quiescent with V-J > 1.2)
-    is_dusty = (~is_quiescent) & (vj > 1.2)
-    results[is_dusty] = 2
-    
-    return results
+    return _classify_uvj_poly(vj, uv)
 
 def is_in_giavalisco_wedge(u_g, g_r):
     """
