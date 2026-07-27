@@ -14,6 +14,50 @@ The project combines two complementary approaches:
    galaxies from the ZFOURGE survey, using CIGALE SED decomposition to separate each
    galaxy's AGN and host-galaxy light and measure the actual colour shift.
 
+## How the modelling works
+
+**Building a composite SED.** Each theoretical data point starts as two spectra on a
+common wavelength grid (Angstroms, flux in erg/s/cm²/Å): a SKIRTOR AGN torus model
+(Type 1 = face-on, inclination 0°; Type 2 = edge-on, inclination 90°; fixed torus
+optical depth, opening angle, and radial structure) and a host-galaxy template (either
+an empirical Brown 2014 GALSEDATLAS spectrum or a SWIRE template). The two spectra are
+interpolated onto their overlapping wavelength range, then the AGN spectrum is scaled
+so its integrated flux matches the galaxy's:
+
+```
+scaling_factor = ∫ F_galaxy dλ / ∫ F_AGN dλ
+composite(λ)   = F_galaxy(λ) + alpha × scaling_factor × F_AGN(λ)
+```
+
+`alpha` (`config.ALPHA_VALUES`, 11 steps from 0 to 1) is therefore a direct "fractional
+AGN contribution" knob: alpha = 0 is a pure galaxy, alpha = 1 means the AGN contributes
+as much integrated flux as the host itself. Sweeping alpha at a fixed redshift produces
+a track showing how progressively brighter AGN light drags a galaxy's colours away from
+its intrinsic, AGN-free position.
+
+**Turning spectra into colours.** Each composite spectrum is convolved with real filter
+passbands (via `astLib.astSED`) to get synthetic AB-magnitude colours in three
+diagnostic spaces:
+
+- **UVJ** (rest-frame U−V vs. V−J) — the standard diagram for separating quiescent,
+  star-forming, and dusty galaxies. A galaxy is classified quiescent if it falls inside
+  a fixed polygon in UVJ space (`photometry.classify_uvj`); otherwise it's dusty if
+  V−J > 1.2, or star-forming otherwise.
+- **ugr** (u−g vs. g−r) and **IRAC** (log f₅.₈/f₃.₆ vs. log f₈.₀/f₄.₅, the Lacy AGN
+  wedge) — computed at a chosen observed redshift by redshifting the composite
+  spectrum before convolving with the filters, so both intrinsic (rest-frame) and
+  redshift-dependent contamination effects can be tracked separately.
+
+**Checking it against real galaxies.** The same colour-shift signature should be
+recoverable in real data. ZFOURGE gives rest-frame U, V, J fluxes for ~10,000 galaxies
+across three fields; CIGALE SED fitting independently decomposes each galaxy's best-fit
+model into its AGN and host-galaxy flux components (`data_io.read_cigale_best_model`),
+giving an observational analogue of "subtracting off alpha's worth of AGN light" without
+relying on the theoretical templates at all. Comparing a galaxy's classification with
+and without its fitted AGN component isolates how much of its UVJ position was an
+artefact of AGN contamination rather than the host's actual stellar population — see
+`docs/cigale_decomposition_findings.md` for the resulting findings.
+
 ## Repository structure
 
 ```
