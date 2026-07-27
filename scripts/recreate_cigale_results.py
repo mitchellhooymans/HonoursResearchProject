@@ -36,8 +36,8 @@ def recreate_cigale_decomposed_results():
     visualization.plot_uvj_diagram(df['VJ_Full'], df['UV_Full'], ax=axes[0], title="Full Galaxy (Host + AGN)")
     visualization.plot_uvj_diagram(df['VJ_Decomposed'], df['UV_Decomposed'], ax=axes[1], title="Decomposed Host (AGN Removed)")
     
-    os.makedirs(os.path.join('outputs', 'ThesisPlots'), exist_ok=True)
-    fig9_path = os.path.join('outputs', 'ThesisPlots', 'UVJ_CIGALE_SideBySide.png')
+    os.makedirs(os.path.join('outputs', 'ResultPlots'), exist_ok=True)
+    fig9_path = os.path.join('outputs', 'ResultPlots', 'UVJ_CIGALE_SideBySide.png')
     plt.savefig(fig9_path, dpi=300)
     print(f"Saved Figure 9: {fig9_path}")
     plt.close()
@@ -73,7 +73,7 @@ def recreate_cigale_decomposed_results():
                 fontsize=12, fontweight='bold', color='blue')
     
     ax.legend(loc='lower right')
-    fig10_path = os.path.join('outputs', 'ThesisPlots', 'UVJ_CIGALE_Migration_Arrows.png')
+    fig10_path = os.path.join('outputs', 'ResultPlots', 'UVJ_CIGALE_Migration_Arrows.png')
     plt.savefig(fig10_path, dpi=300)
     print(f"Saved Figure 10: {fig10_path}")
     plt.close()
@@ -100,7 +100,7 @@ def recreate_cigale_decomposed_results():
                     arrowprops=dict(arrowstyle="->", color=color, lw=2, alpha=0.7))
 
     ax.legend(loc='lower right', title="Redshift Bins", fontsize='small')
-    fig11_path = os.path.join('outputs', 'ThesisPlots', 'UVJ_CIGALE_Redshift_Bins.png')
+    fig11_path = os.path.join('outputs', 'ResultPlots', 'UVJ_CIGALE_Redshift_Bins.png')
     plt.savefig(fig11_path, dpi=300)
     print(f"Saved Figure 11: {fig11_path}")
     plt.close()

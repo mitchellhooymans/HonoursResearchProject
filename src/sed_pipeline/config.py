@@ -35,7 +35,7 @@ ZFOURGE_CATALOG_DIR = os.path.join(RAW_DATA_DIR, "zfourge")
 GALSEDATLAS_DIR = os.path.join(RAW_DATA_DIR, "Templates")
 
 # SKIRTOR AGN model parameters (Type 1 and Type 2 defaults)
-# Based on thesis methodology parameters
+# Based on the project's modelling methodology
 SKIRTOR_TYPE1_PARAMS = {'optical_depth': 7, 'p': 0.5, 'q': 0, 'opening_angle': 40, 'radius_ratio': 20, 'inclination': 0}
 SKIRTOR_TYPE2_PARAMS = {'optical_depth': 7, 'p': 0.5, 'q': 0, 'opening_angle': 40, 'radius_ratio': 20, 'inclination': 90}
 
@@ -44,7 +44,7 @@ SKIRTOR_TYPE2_PARAMS = {'optical_depth': 7, 'p': 0.5, 'q': 0, 'opening_angle': 4
 # ==============================================================================
 FILTER_DIR = os.path.join(RAW_DATA_DIR, "Filters")
 
-# Filter paths (based on ThesisOutputs.py)
+# Filter paths (migrated from the original filter definitions)
 FILTER_PATHS = {
     'U': os.path.join(FILTER_DIR, 'Generic_Johnson.U.dat'),
     'V': os.path.join(FILTER_DIR, 'Generic_Johnson.V.dat'),

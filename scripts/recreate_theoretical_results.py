@@ -1,7 +1,7 @@
 """
-recreate_thesis_results.py
+recreate_theoretical_results.py
 
-Comprehensive script to recreate key visualizations and analysis from the thesis.
+Comprehensive script to recreate key theoretical-modelling visualizations and analysis.
 Demonstrates:
 1. ZFOURGE catalog loading and UVJ plotting with density.
 2. CIGALE SED decomposition and color shift analysis.
@@ -36,8 +36,8 @@ def recreate_uvj_catalog_analysis(field='CDFS'):
     
     # 3. Classify populations
     vj = df_filtered['V'] - df_filtered['J'] # This is incorrect in data_io? 
-    # Actually, data_io gives U, V, J from rest_df which are already colors or fluxes? 
-    # In ThesisOutputs.py: df['U']-df['V'] is UV.
+    # Actually, data_io gives U, V, J from rest_df which are already colors or fluxes?
+    # In the original implementation: df['U']-df['V'] is UV.
     # In ZFourgeUVJInvestigation: U, V, J are fluxes, mag_U is 25 - 2.5*log10(flux)
     
     # Re-calculate magnitudes to be sure
@@ -59,8 +59,8 @@ def recreate_uvj_catalog_analysis(field='CDFS'):
                                    show_density=True, 
                                    avg_error=(avg_vj_err, avg_uv_err))
     
-    plt.savefig(os.path.join(config.PROCESSED_DATA_DIR, f"thesis_uvj_{field}_density.png"))
-    print(f"Saved: thesis_uvj_{field}_density.png")
+    plt.savefig(os.path.join(config.PROCESSED_DATA_DIR, f"uvj_{field}_density.png"))
+    print(f"Saved: uvj_{field}_density.png")
     
     # 5. Output Fractions
     q, sf, d = analysis.calculate_population_fractions(classifications)
@@ -97,10 +97,10 @@ def recreate_cigale_decomposition_demo():
     ax.set_title(f"SED Decomposition Demo: {sample_field}_{sample_id}")
     ax.legend()
     
-    plt.savefig(os.path.join(config.PROCESSED_DATA_DIR, "thesis_sed_decomposition_demo.png"))
-    print("Saved: thesis_sed_decomposition_demo.png")
+    plt.savefig(os.path.join(config.PROCESSED_DATA_DIR, "sed_decomposition_demo.png"))
+    print("Saved: sed_decomposition_demo.png")
 
 if __name__ == "__main__":
     recreate_uvj_catalog_analysis('COSMOS') # COSMOS was used in the script snippet
     recreate_cigale_decomposition_demo()
-    print("\nThesis recreation script finished.")
+    print("\nRecreation script finished.")

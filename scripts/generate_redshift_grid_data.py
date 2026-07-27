@@ -2,7 +2,7 @@
 generate_redshift_grid_data.py
 
 Batch script to calculate ugr completeness across a grid of redshifts (0.0 to 4.0).
-Implements the methodology defined in Section 5.1.5 of the thesis.
+Implements the project's redshift-grid completeness methodology.
 """
 
 import sys

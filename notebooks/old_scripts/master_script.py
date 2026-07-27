@@ -25,7 +25,7 @@ os.makedirs(config.PROCESSED_DATA_DIR, exist_ok=True)
 # %% [markdown]
 # ## 1. Load Configurations and Base Models
 # 
-# We start by loading the necessary filters (UVJ, ugr, IRAC) and the base Type 1 and Type 2 AGN SKIRTOR models using parameters defined in the thesis methodology.
+# We start by loading the necessary filters (UVJ, ugr, IRAC) and the base Type 1 and Type 2 AGN SKIRTOR models using parameters defined in the project's modelling methodology.
 
 # %%
 # Load Filters

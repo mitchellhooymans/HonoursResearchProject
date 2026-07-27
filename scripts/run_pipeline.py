@@ -43,7 +43,7 @@ def main():
 
     print("\n[Status]")
     print("All modules imported successfully. Mathematical error propagations")
-    print("have been corrected per thesis definitions.")
+    print("have been corrected per the project's colour-error definitions.")
     print("Ready for full batch processing.")
 
 if __name__ == "__main__":
