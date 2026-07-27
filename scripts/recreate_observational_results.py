@@ -43,8 +43,8 @@ def recreate_observational_uvj_results(agn_type='Type1'):
     visualization.plot_uvj_diagram(vj_alpha, uv_alpha, classifications=classifications, 
                                    show_density=True, title=f"ZFOURGE UVJ Density (Alpha={alpha_target}%)")
     
-    os.makedirs(os.path.join('outputs', 'ThesisPlots'), exist_ok=True)
-    fig7_path = os.path.join('outputs', 'ThesisPlots', f'ZFOURGE_UVJ_Density_Alpha{alpha_target}.png')
+    os.makedirs(os.path.join('outputs', 'ResultPlots'), exist_ok=True)
+    fig7_path = os.path.join('outputs', 'ResultPlots', f'ZFOURGE_UVJ_Density_Alpha{alpha_target}.png')
     plt.savefig(fig7_path, dpi=300)
     print(f"Saved Figure 7: {fig7_path}")
     plt.close()
@@ -76,7 +76,7 @@ def recreate_observational_uvj_results(agn_type='Type1'):
                     arrowprops=dict(arrowstyle="->", color=colors[class_id], lw=1.5, alpha=0.5))
 
     ax.legend(loc='lower right')
-    fig8_path = os.path.join('outputs', 'ThesisPlots', 'ZFOURGE_Average_Region_Tracks.png')
+    fig8_path = os.path.join('outputs', 'ResultPlots', 'ZFOURGE_Average_Region_Tracks.png')
     plt.savefig(fig8_path, dpi=300)
     print(f"Saved Figure 8: {fig8_path}")
     plt.close()
@@ -105,7 +105,7 @@ def recreate_observational_uvj_results(agn_type='Type1'):
     print("\nTable 4: Mean Vector Offsets per Region")
     print(offset_df)
     
-    table4_path = os.path.join('outputs', 'ThesisPlots', 'ZFOURGE_Population_VectorOffsets.csv')
+    table4_path = os.path.join('outputs', 'ResultPlots', 'ZFOURGE_Population_VectorOffsets.csv')
     offset_df.to_csv(table4_path, index=False)
     print(f"Saved Table 4: {table4_path}")
 

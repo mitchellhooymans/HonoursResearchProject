@@ -11,7 +11,7 @@ from .photometry import classify_uvj as _classify_uvj_poly
 
 def flux_to_mag_error(flux, error):
     """
-    CORRECTED ERROR PROPAGATION (Thesis Fix):
+    CORRECTED ERROR PROPAGATION:
     M = -2.5 * log10(F) + C
     dM = |-2.5 / (F * ln(10))| * dF
     """
@@ -19,7 +19,7 @@ def flux_to_mag_error(flux, error):
 
 def color_error(f1, f2, e1, e2):
     """
-    CORRECTED COLOR ERROR PROPAGATION (Thesis Fix):
+    CORRECTED COLOR ERROR PROPAGATION:
     C = -2.5 * log10(f1/f2)
     dC = (2.5 / ln(10)) * sqrt((e1/f1)^2 + (e2/f2)^2)
     """
