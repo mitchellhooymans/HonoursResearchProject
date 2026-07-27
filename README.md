@@ -1,0 +1,104 @@
+# AGN Synthetic SED Modelling Pipeline
+
+Research code for an Honours thesis investigating how Active Galactic Nuclei (AGN)
+contamination biases rest-frame colour classification of galaxies — specifically the
+UVJ diagram widely used to separate quiescent, star-forming, and dusty galaxy
+populations.
+
+The project combines two complementary approaches:
+
+1. **Theoretical modelling** — synthetic composite SEDs built by mixing SKIRTOR AGN
+   torus models with galaxy templates (Brown 2014, SWIRE, GALSEDATLAS) across a grid
+   of AGN fractions and redshifts, to predict how AGN light should shift a host
+   galaxy's observed colours.
+2. **Observational validation** — the theoretical predictions are tested against real
+   galaxies from the ZFOURGE survey, using CIGALE SED decomposition to separate each
+   galaxy's AGN and host-galaxy light and measure the actual colour shift.
+
+## Repository structure
+
+```
+src/sed_pipeline/     Core pipeline package (see below)
+notebooks/            Analysis notebooks, one per thesis/paper section
+scripts/              Standalone scripts that recreate specific paper figures/tables
+datasets/             Input catalogs, filter curves, and SED templates
+outputs/              Generated figures, tables, and intermediate CSVs
+docs/                 Written findings that go beyond what fits in a notebook
+```
+
+### `src/sed_pipeline`
+
+The reusable pipeline logic, factored out of the original one-off analysis scripts:
+
+| Module              | Responsibility                                                          |
+|----------------------|--------------------------------------------------------------------------|
+| `config.py`          | Cosmology, model grid, file paths, filter/SKIRTOR parameter definitions |
+| `data_io.py`         | Reading SKIRTOR/template models and catalogs into DataFrames           |
+| `composite_math.py`  | Core SED physics: alignment, interpolation, flux scaling, composites   |
+| `photometry.py`      | Synthetic photometry, UVJ/Lacy wedge classification, mag conversions   |
+| `analysis.py`        | Error propagation, vector offsets, completeness and population stats   |
+| `visualization.py`   | Matplotlib styling and plotting helpers (PASA-format figure sizes)     |
+
+### `notebooks`
+
+Each notebook corresponds to a section of the thesis and generates the paper figures
+noted below.
+
+| Notebook                                  | Thesis section | Produces                          |
+|--------------------------------------------|----------------|-------------------------------------|
+| `Model_Validation_via_IRAC.ipynb`          | 5.1            | Figs 1–2, Table 2 (IRAC colour space) |
+| `UVJ_Colour_Evolution.ipynb`               | 5.2            | Figs 3–6, Table 3 (UVJ evolution)   |
+| `Observational_Validation_ZFOURGE.ipynb`   | 5.3            | Figs 7–11, Table 4 (ZFOURGE + CIGALE) |
+| `Paper_Results_Master.ipynb`               | All of the above | The full, consolidated set of paper figures and tables in one place |
+
+`notebooks/old_scripts/` holds the pre-refactor scripts these notebooks replaced —
+kept for reference during the migration.
+
+### `scripts`
+
+Command-line entry points that exercise the pipeline outside a notebook:
+
+- `run_pipeline.py` — minimal smoke test wiring the modules together.
+- `generate_redshift_grid_data.py` — batches the UGR-completeness calculation across
+  a redshift grid (thesis section 5.1.5).
+- `recreate_thesis_results.py`, `recreate_observational_results.py`,
+  `recreate_cigale_results.py` — regenerate specific paper figures/tables from
+  pre-computed outputs without re-running a full notebook.
+
+### `docs`
+
+- `cigale_decomposition_findings.md` — the AGN-fraction analysis behind paper Figs
+  7–8: why population-averaged colour shifts looked negligible, and the follow-up
+  discovery that AGN contamination hides quiescent galaxies at low redshift.
+
+## Getting started
+
+Requires Python 3.11 and [uv](https://docs.astral.sh/uv/) for dependency management.
+
+```bash
+uv sync
+```
+
+This installs the pinned dependencies from `uv.lock` (NumPy, pandas, Matplotlib,
+Astropy, SciPy, Seaborn) into `.venv`. `astLib` is vendored directly in the repo
+(used for its `astSED` passband/SED handling) rather than pulled from PyPI.
+
+## Data
+
+`datasets/` and `outputs/` hold catalogs, templates, and generated results. The
+largest raw files (ZFOURGE FITS catalogs, EAZY `.h5` template sets, per-galaxy CIGALE
+best-fit models) are excluded from version control via `.gitignore` — obtain these
+separately and place them under the paths referenced in `src/sed_pipeline/config.py`
+before running the observational-validation notebooks/scripts.
+
+## Running the analysis
+
+From an activated environment (`uv run jupyter lab`, or point your IDE's kernel at
+`.venv`), open a notebook under `notebooks/` and run it top to bottom — each is
+self-contained and documents which paper figure/table each section produces. To
+regenerate a specific result without notebooks, run the matching script under
+`scripts/` from the repository root, e.g.:
+
+```bash
+uv run python scripts/recreate_observational_results.py
+```
