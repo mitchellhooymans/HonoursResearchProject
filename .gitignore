@@ -14,3 +14,14 @@ legacy
 honours_outputs
 .venv
 outputs/*
+
+# Private/internal content - not for the public repo
+Context/
+Draft Paper/
+.claude/
+GEMINI.md
+PROJECT_OVERVIEW.md
+
+# Python bytecode
+__pycache__/
+*.pyc
