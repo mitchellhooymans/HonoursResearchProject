@@ -1,4 +1,4 @@
-# AGN Synthetic SED Modelling Pipeline
+# GLASS: Galaxy Light & AGN Spectral Synthesis
 
 Research code investigating how Active Galactic Nuclei (AGN) contamination biases
 rest-frame colour classification of galaxies — specifically the UVJ diagram widely
@@ -55,7 +55,7 @@ measures how AGN contamination shifts a galaxy's observed properties.
 ## Repository structure
 
 ```
-src/sed_pipeline/     Core pipeline package (see below)
+src/glass/            Core GLASS package (see below)
 notebooks/            Analysis notebooks, one per stage of the modelling/validation
 scripts/              Standalone scripts that regenerate specific outputs
 datasets/             Input catalogs, filter curves, and SED templates
@@ -63,7 +63,7 @@ outputs/              Generated figures, tables, and intermediate CSVs
 docs/                 Written findings that go beyond what fits in a notebook
 ```
 
-### `src/sed_pipeline`
+### `src/glass`
 
 The reusable pipeline logic, factored out of the original one-off analysis scripts:
 
@@ -123,7 +123,7 @@ Astropy, SciPy, Seaborn) into `.venv`. `astLib` is vendored directly in the repo
 `datasets/` and `outputs/` hold catalogs, templates, and generated results. The
 largest raw files (ZFOURGE FITS catalogs, EAZY `.h5` template sets, per-galaxy CIGALE
 best-fit models) are excluded from version control via `.gitignore` — obtain these
-separately and place them under the paths referenced in `src/sed_pipeline/config.py`
+separately and place them under the paths referenced in `src/glass/config.py`
 before running the observational-validation notebooks/scripts.
 
 ## Running the analysis

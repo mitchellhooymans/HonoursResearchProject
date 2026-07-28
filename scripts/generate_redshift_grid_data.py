@@ -13,7 +13,7 @@ import pandas as pd
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.sed_pipeline import config, data_io, composite_math, photometry, analysis
+from src.glass import config, data_io, composite_math, photometry, analysis
 
 def main():
     print("Loading Filters...")

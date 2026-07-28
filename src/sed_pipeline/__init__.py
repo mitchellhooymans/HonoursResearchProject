@@ -1,1 +1,0 @@
-# Initialize the sed_pipeline package

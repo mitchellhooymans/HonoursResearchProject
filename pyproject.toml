@@ -1,7 +1,7 @@
 [project]
-name = "honoursresearchproject"
+name = "glass"
 version = "0.1.0"
-description = "AGN Synthetic SED Modelling Pipeline"
+description = "GLASS: Galaxy Light & AGN Spectral Synthesis"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
