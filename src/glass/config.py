@@ -1,7 +1,7 @@
 """
 config.py
 
-Centralized configuration for the SED modeling pipeline.
+Centralized configuration for GLASS (Galaxy Light & AGN Spectral Synthesis).
 Contains cosmological parameters, paths, grid settings, and physical constants.
 """
 

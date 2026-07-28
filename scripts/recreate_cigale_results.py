@@ -14,7 +14,7 @@ import sys
 # Ensure project root is in path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.sed_pipeline import config, visualization, photometry, analysis
+from src.glass import config, visualization, photometry, analysis
 
 def recreate_cigale_decomposed_results():
     print("--- Recreating CIGALE Population Analysis ---")

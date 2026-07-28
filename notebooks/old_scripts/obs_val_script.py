@@ -14,7 +14,7 @@ import seaborn as sns
 # Ensure the project root is in the path to import the local package
 sys.path.append(os.path.abspath('..'))
 
-from src.sed_pipeline import config, photometry, visualization, analysis
+from src.glass import config, photometry, visualization, analysis
 
 # PASA publication styling
 plt.style.use('default')

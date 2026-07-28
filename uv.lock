@@ -528,7 +528,7 @@ wheels = [
 ]
 
 [[package]]
-name = "honoursresearchproject"
+name = "glass"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
