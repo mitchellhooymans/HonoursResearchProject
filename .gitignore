@@ -14,6 +14,7 @@ legacy
 honours_outputs
 .venv
 outputs/*
+student_edition/*
 
 # Private/internal content - not for the public repo
 Context/
