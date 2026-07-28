@@ -30,21 +30,24 @@ viewed face-on (inclination 0°) gives an unobscured **Type 1** spectrum, and ed
 empirical rest-frame template — from Brown et al. (2014, GALSEDATLAS) or SWIRE —
 standing in for a real host galaxy's intrinsic stellar-population light.
 
-The two spectra are interpolated onto the wavelength range they have in common, and
-the AGN spectrum is renormalized relative to the galaxy before being mixed in at a
-tunable weight $\alpha$:
+Both spectra are put on a common wavelength grid (Å) and **truncated to the range
+where they overlap** — if one template's native coverage extends further than the
+other's, that extra region is dropped on both sides, and the composite is only ever
+defined on the shared range $\Lambda$ that remains. Within $\Lambda$, the AGN's flux
+density $F_{\text{AGN}}(\lambda)$ (erg/s/cm²/Å) is renormalized relative to the
+galaxy's $F_{\text{gal}}(\lambda)$, then mixed in at a tunable weight $\alpha$:
 
 $$
-S = \frac{\int F_{\text{gal}}(\lambda)\,d\lambda}{\int F_{\text{AGN}}(\lambda)\,d\lambda}
+S = \frac{\displaystyle\int_{\Lambda} F_{\text{gal}}(\lambda)\,d\lambda}{\displaystyle\int_{\Lambda} F_{\text{AGN}}(\lambda)\,d\lambda}
 \qquad\quad
-F_{\text{composite}}(\lambda) = F_{\text{gal}}(\lambda) + \alpha\, S\, F_{\text{AGN}}(\lambda)
+F_{\text{composite}}(\lambda) = F_{\text{gal}}(\lambda) + \alpha\, S\, F_{\text{AGN}}(\lambda), \quad \lambda \in \Lambda
 $$
 
-with both integrals taken over that shared wavelength range. $S$ is the factor that
-puts the AGN spectrum on equal integrated-flux footing with the galaxy; $\alpha$
-(`config.ALPHA_VALUES`, 11 steps from 0 to 1) then sets the AGN-to-galaxy flux ratio
-directly. At $\alpha=0$ the composite is a pure galaxy; at $\alpha=1$ the AGN
-contributes exactly as much integrated flux as the host, i.e. a 50/50 mix. Stepping
+$S$ is the factor that puts the AGN spectrum on equal integrated-flux footing with
+the galaxy over $\Lambda$; $\alpha$ (`config.ALPHA_VALUES`, 11 steps from 0 to 1)
+then sets the AGN-to-galaxy flux ratio directly. At $\alpha=0$ the composite is a
+pure galaxy; at $\alpha=1$ the AGN contributes exactly as much integrated flux as
+the host, i.e. a 50/50 mix. Stepping
 $\alpha$ across its range produces a grid of composites running from "no AGN" to
 "AGN as bright as the host," which is the basis for everything downstream that
 measures how AGN contamination shifts a galaxy's observed properties.
