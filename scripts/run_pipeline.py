@@ -12,12 +12,12 @@ import numpy as np
 # Adjust path to import the new src package
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from src.glass import config
-from src.glass import data_io
-from src.glass import composite_math
-from src.glass import photometry
-from src.glass import visualization
-from src.glass import analysis
+from src import config
+from glass import data_io
+from glass import composite_math
+from glass import photometry
+from glass import visualization
+from glass import analysis
 import matplotlib.pyplot as plt
 
 def main():

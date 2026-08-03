@@ -14,7 +14,8 @@ import sys
 # Ensure project root is in path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.glass import config, visualization, photometry, analysis
+from src import config
+from glass import visualization, photometry, analysis
 
 def recreate_observational_uvj_results(agn_type='Type1'):
     print(f"--- Recreating Observational UVJ Results for {agn_type} AGN ---")
