@@ -17,7 +17,8 @@ import numpy as np
 # Ensure project root is in path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.glass import config, data_io, photometry, visualization, analysis
+from src import config
+from glass import data_io, photometry, visualization, analysis
 
 def recreate_uvj_catalog_analysis(field='CDFS'):
     print(f"--- Recreating UVJ Analysis for {field} ---")

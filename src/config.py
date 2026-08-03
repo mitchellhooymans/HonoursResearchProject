@@ -1,8 +1,11 @@
 """
 config.py
 
-Centralized configuration for GLASS (Galaxy Light & AGN Spectral Synthesis).
-Contains cosmological parameters, paths, grid settings, and physical constants.
+Project-specific configuration for this repo's paper analysis: dataset
+paths, cosmology, and model-grid parameters. The reusable GLASS library
+itself now lives in the standalone `glass` package (installed as a
+dependency) - this module only supplies the paths to the full research
+datasets that the bundled sample data in that package doesn't include.
 """
 
 import numpy as np
@@ -25,8 +28,8 @@ ALPHA_VALUES = np.linspace(0, 1, 11)
 # ==============================================================================
 # File Paths and Directories
 # ==============================================================================
-# Define base directory relative to this file (M:\GitHub\HonoursResearchProject)
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+# Define base directory relative to this file (repo root)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 RAW_DATA_DIR = os.path.join(PROJECT_ROOT, "datasets")
 PROCESSED_DATA_DIR = os.path.join(PROJECT_ROOT, "outputs")
