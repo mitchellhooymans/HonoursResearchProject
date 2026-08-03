@@ -114,8 +114,8 @@ def plot_uvj_diagram(vj, uv, classifications=None, ax=None, title="UVJ Colour-Co
 
     ax.plot([1.2, 1.2], [0, 1.6], color='#333333', linestyle='--', lw=1.5)  # Dusty/SF boundary line
 
-    ax.text(-0.3, 2.3, 'Quiescent', fontsize=9, fontweight='bold')
-    ax.text(-0.3, 0.2, 'Star-forming', fontsize=9, fontweight='bold')
+    ax.text(-0.1, 2.3, 'Quiescent', fontsize=9, fontweight='bold')
+    ax.text(-0.2, 0.05, 'Star-forming', fontsize=9, fontweight='bold')
     ax.text(1.8, 2.3, 'Dusty', fontsize=9, fontweight='bold')
     
     if classifications is not None or avg_error:
