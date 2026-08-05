@@ -37,6 +37,40 @@ PROCESSED_DATA_DIR = os.path.join(PROJECT_ROOT, "outputs")
 ZFOURGE_CATALOG_DIR = os.path.join(RAW_DATA_DIR, "zfourge")
 GALSEDATLAS_DIR = os.path.join(RAW_DATA_DIR, "Templates")
 
+# Consolidated destination for the plots actually referenced by
+# Context/AGNPaper/paper.tex - lets the notebooks export just the
+# paper-required subset instead of the full working outputs/ directory.
+PAPER_FIGURES_DIR = os.path.join(PROCESSED_DATA_DIR, "PaperFigures")
+
+# The gitignored Overleaf checkout (only present locally) and the image
+# folder paper.tex's \includegraphics calls actually point at. When present,
+# the paper-figure export step copies straight in here too, so a figure can
+# never go stale in the paper just because the manual copy step was skipped.
+AGNPAPER_DIR = os.path.join(PROJECT_ROOT, "Context", "AGNPaper")
+PAPER_OVERLEAF_IMAGES_DIR = os.path.join(AGNPAPER_DIR, "Images", "TheoreticalModelPlots")
+
+# Figures required by paper.tex's \includegraphics calls, keyed by the exact
+# filename the paper expects. Value = path relative to PROCESSED_DATA_DIR
+# where the source file is currently saved. Update this dict if the paper's
+# figures change - it is the single source of truth for "which plots does
+# the paper need", derived directly from paper.tex.
+PAPER_FIGURE_MANIFEST = {
+    "Paper_IRAC_Evolution_Combined.pdf": "Paper_IRAC_Evolution_Combined.pdf",
+    "Paper_UVJ_Evolution_Combined.pdf": "Paper_UVJ_Evolution_Combined.pdf",
+    "Paper_UVJ_Fractions_Combined.pdf": "Paper_UVJ_Fractions_Combined.pdf",
+    "CompositeSEDs_UVJ.pdf": "CompositeSEDs_UVJ.pdf",
+    "UVJ_Type1_Density_Evolution.pdf": "UVJ_Type1_Density_Evolution.pdf",
+    "ZFOURGE_UVJ_Density_RegionTracks_Combined.pdf": "ZFOURGE_UVJ_Density_RegionTracks_Combined.pdf",
+    "UVJ_CIGALE_migration_fullgrid_individual.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_migration_fullgrid_individual.pdf"),
+    "UVJ_CIGALE_redshift_finerbins_individual.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_redshift_finerbins_individual.pdf"),
+    "UVJ_CIGALE_hidden_quiescent_redshift.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_hidden_quiescent_redshift.pdf"),
+    "UVJ_CIGALE_migrations_vs_theory.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_migrations_vs_theory.pdf"),
+    "UVJ_CIGALE_hidden_quiescent_fraction.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_hidden_quiescent_fraction.pdf"),
+    "UVJ_CIGALE_fracAGN_distribution_and_offset.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_fracAGN_distribution_and_offset.pdf"),
+    "UVJ_CIGALE_fracAGN_migration_trend.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_fracAGN_migration_trend.pdf"),
+    "UVJ_CIGALE_fracAGN_redshift_confound.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_fracAGN_redshift_confound.pdf"),
+}
+
 # SKIRTOR AGN model parameters (Type 1 and Type 2 defaults)
 # Based on the project's modelling methodology
 SKIRTOR_TYPE1_PARAMS = {'optical_depth': 7, 'p': 0.5, 'q': 0, 'opening_angle': 40, 'radius_ratio': 20, 'inclination': 0}
