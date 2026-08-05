@@ -83,7 +83,8 @@ The reusable pipeline logic, factored out of the original one-off analysis scrip
 | `Model_Validation_via_IRAC.ipynb`          | Validating composite AGN+galaxy models against IRAC colour space       |
 | `UVJ_Colour_Evolution.ipynb`               | How UVJ colours evolve with AGN fraction and redshift across templates |
 | `Observational_Validation_ZFOURGE.ipynb`   | Testing model predictions against ZFOURGE + CIGALE-decomposed galaxies |
-| `Paper_Results_Master.ipynb`               | Consolidated notebook producing the full set of results in one place   |
+| `Paper_Results_Master.ipynb`               | Theoretical model results (composite SEDs, colour evolution, completeness, UVJ fractions) |
+| `CIGALE_Decomposition_Analysis.ipynb`      | CIGALE/ZFOURGE AGN-fraction decomposition analysis (split out of the above, 2026-08-05) |
 
 `notebooks/old_scripts/` holds the pre-refactor scripts these notebooks replaced —
 kept for reference during the migration.

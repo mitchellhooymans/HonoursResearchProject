@@ -1,6 +1,6 @@
 # CIGALE ZFOURGE Decomposition: AGN-Fraction Analysis Findings
 
-*Analysis of the UVJ colour shift between full-photometry and CIGALE-decomposed ZFOURGE galaxies (paper Figures 7 & 8), and the follow-up investigation into AGN-hidden quiescent galaxies. Generated 2026-07-17. Code: `notebooks/Paper_Results_Master.ipynb`, sections 9, 9b, 9c, 9d. Figures: `outputs/fracAGN_diagnostics/`.*
+*Analysis of the UVJ colour shift between full-photometry and CIGALE-decomposed ZFOURGE galaxies (paper Figures 7 & 8), and the follow-up investigation into AGN-hidden quiescent galaxies. Generated 2026-07-17. Code: `notebooks/CIGALE_Decomposition_Analysis.ipynb` (split out of `Paper_Results_Master.ipynb` section 9 on 2026-08-05), sections 9, 9b, 9c, 9d. Figures: `outputs/fracAGN_diagnostics/`.*
 
 ## 1. The original problem
 
