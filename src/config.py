@@ -61,14 +61,11 @@ PAPER_FIGURE_MANIFEST = {
     "CompositeSEDs_UVJ.pdf": "CompositeSEDs_UVJ.pdf",
     "UVJ_Type1_Density_Evolution.pdf": "UVJ_Type1_Density_Evolution.pdf",
     "ZFOURGE_UVJ_Density_RegionTracks_Combined.pdf": "ZFOURGE_UVJ_Density_RegionTracks_Combined.pdf",
-    "UVJ_CIGALE_migration_fullgrid_individual.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_migration_fullgrid_individual.pdf"),
-    "UVJ_CIGALE_redshift_finerbins_individual.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_redshift_finerbins_individual.pdf"),
     "UVJ_CIGALE_hidden_quiescent_redshift.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_hidden_quiescent_redshift.pdf"),
-    "UVJ_CIGALE_migrations_vs_theory.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_migrations_vs_theory.pdf"),
-    "UVJ_CIGALE_hidden_quiescent_fraction.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_hidden_quiescent_fraction.pdf"),
     "UVJ_CIGALE_fracAGN_distribution_and_offset.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_fracAGN_distribution_and_offset.pdf"),
-    "UVJ_CIGALE_fracAGN_migration_trend.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_fracAGN_migration_trend.pdf"),
     "UVJ_CIGALE_fracAGN_redshift_confound.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_fracAGN_redshift_confound.pdf"),
+    "UVJ_CIGALE_allhosts_fracAGN_colored_combined.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_allhosts_fracAGN_colored_combined.pdf"),
+    "UVJ_CIGALE_allhosts_fracAGN_colored_redshift_bins.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_allhosts_fracAGN_colored_redshift_bins.pdf"),
 }
 
 # SKIRTOR AGN model parameters (Type 1 and Type 2 defaults)
