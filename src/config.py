@@ -66,6 +66,7 @@ PAPER_FIGURE_MANIFEST = {
     "UVJ_CIGALE_fracAGN_redshift_confound.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_fracAGN_redshift_confound.pdf"),
     "UVJ_CIGALE_allhosts_fracAGN_colored_combined.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_allhosts_fracAGN_colored_combined.pdf"),
     "UVJ_CIGALE_allhosts_fracAGN_colored_redshift_bins.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_allhosts_fracAGN_colored_redshift_bins.pdf"),
+    "Paper_UVJ_Contamination_Bias_Summary.pdf": "Paper_UVJ_Contamination_Bias_Summary.pdf",
 }
 
 # SKIRTOR AGN model parameters (Type 1 and Type 2 defaults)
