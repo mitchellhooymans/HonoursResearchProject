@@ -11,6 +11,8 @@ datasets that the bundled sample data in that package doesn't include.
 import numpy as np
 import os
 
+from glass import config as _glass_config
+
 # ==============================================================================
 # Cosmological Parameters (Lambda-CDM)
 # ==============================================================================
@@ -35,7 +37,13 @@ RAW_DATA_DIR = os.path.join(PROJECT_ROOT, "datasets")
 PROCESSED_DATA_DIR = os.path.join(PROJECT_ROOT, "outputs")
 
 ZFOURGE_CATALOG_DIR = os.path.join(RAW_DATA_DIR, "zfourge")
-GALSEDATLAS_DIR = os.path.join(RAW_DATA_DIR, "Templates")
+
+# GALSEDATLAS (Brown) and SKIRTOR templates are bundled with the `glass`
+# package itself (MAST HLSP naming for GALSEDATLAS, SKIRTOR release naming
+# for SKIRTOR) - point at those instead of this repo's local datasets/
+# copies, which use an older, incompatible GALSEDATLAS file-naming scheme.
+GALSEDATLAS_DIR = _glass_config.GALSEDATLAS_DIR
+SKIRTOR_DIR = _glass_config.SKIRTOR_DIR
 
 # Consolidated destination for the plots actually referenced by
 # Context/AGNPaper/paper.tex - lets the notebooks export just the
