@@ -1,0 +1,266 @@
+==================== CELL 1 ====================
+import sys
+import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+import seaborn as sns
+
+# Ensure the project root is in the path to import the local package
+sys.path.append(os.path.abspath('..'))
+
+from src import config
+from glass import data_io, composite_math, photometry, visualization, analysis
+
+# PASA publication styling
+plt.style.use('default')
+visualization.apply_pasa_style()
+os.makedirs(config.PROCESSED_DATA_DIR, exist_ok=True)
+
+# --- Labelled / unlabelled UVJ region toggle ------------------------------
+# Set to False and re-run this notebook to regenerate every UVJ figure with
+# the Quiescent/Star-forming/Dusty text labels turned off. Filenames are the
+# same either way, so paper.tex's \includegraphics targets never need
+# updating -- whichever variant this notebook most recently produced is
+# what's on disk and in the paper. The wedge boundaries themselves are
+# unaffected; only the in-panel text labels are toggled.
+SHOW_REGION_LABELS = False
+
+def plot_uvj(*args, **kwargs):
+    kwargs.setdefault('show_region_labels', SHOW_REGION_LABELS)
+    return visualization.plot_uvj_diagram(*args, **kwargs)
+
+def save_uvj_fig(fig, path):
+    """Saves fig to `path`; filename is unaffected by SHOW_REGION_LABELS."""
+    fig.savefig(path, dpi=300, bbox_inches='tight')
+==================== CELL 3 ====================
+# Load Filters
+filters = photometry.load_passbands(config.FILTER_PATHS)
+
+# Set specific paths for templates
+skirtor_dir = config.SKIRTOR_DIR
+brown_dir = config.GALSEDATLAS_DIR
+
+# Load AGN Models
+agn_type1 = data_io.read_skirtor_model(skirtor_dir, **config.SKIRTOR_TYPE1_PARAMS)
+agn_type2 = data_io.read_skirtor_model(skirtor_dir, **config.SKIRTOR_TYPE2_PARAMS)
+
+# Load GALSEDATLAS (Brown) Templates
+brown_templates, brown_names = data_io.read_brown_galaxy_templates(brown_dir)
+==================== CELL 6 ====================
+# Load CIGALE summary table
+cigale_csv = os.path.join('..\datasets', 'full_zfourge_decomposed', 'zfourge_full_final.csv')
+agn_frac_csv = os.path.join('..\datasets', 'full_zfourge_decomposed', 'agn_fractions.csv')
+if os.path.exists(cigale_csv):
+    df_cig = pd.read_csv(cigale_csv)
+    z_col = 'zpk_x' if 'zpk_x' in df_cig.columns else 'zpk'
+
+    # Attach CIGALE best-fit AGN fraction (agn.fracAGN) to each galaxy.
+    # The cache is built from the per-galaxy best-model FITS headers if not present.
+    if not os.path.exists(agn_frac_csv):
+        from astropy.io import fits as _fits
+        _rows = []
+        for _gid, _field in zip(df_cig['ID'], df_cig['field']):
+            _path = os.path.join('..\datasets', 'full_zfourge_decomposed',
+                                 f"{_field.lower()}_best_models_fits",
+                                 f"{_gid.split('_', 1)[1]}_best_model.fits")
+            if os.path.exists(_path):
+                _rows.append({'ID': _gid, 'fracAGN': float(_fits.getheader(_path, 1)['agn.fracAGN'])})
+        pd.DataFrame(_rows).to_csv(agn_frac_csv, index=False)
+    df_cig = df_cig.merge(pd.read_csv(agn_frac_csv), on='ID', how='left')
+
+    # Only galaxies with a non-zero best-fit AGN fraction can shift when the AGN
+    # is removed; galaxies with fracAGN = 0 have identical full/decomposed colours
+    # and dilute the mean shift. Raise the threshold (e.g. 0.1) for a stricter cut.
+    AGN_FRAC_MIN = 0.0
+    df_agn = df_cig[df_cig['fracAGN'] > AGN_FRAC_MIN]
+    print(f"AGN-hosting galaxies (fracAGN > {AGN_FRAC_MIN}): {len(df_agn)} of {len(df_cig)}")
+
+    # Fig 9: Full + decomposed scatter with bold per-region mean shift arrows
+    fig, ax = plt.subplots(figsize=visualization.PASA_SQ)
+    plot_uvj([], [], ax=ax, title="")
+
+    ax.scatter(df_agn['VJ_Full'],       df_agn['UV_Full'],       c='#444444',   s=5, alpha=0.15, label='Full galaxy',     zorder=3)
+    ax.scatter(df_agn['VJ_Decomposed'], df_agn['UV_Decomposed'], c='darkorange', s=5, alpha=0.25, label='Decomposed host', zorder=3)
+
+    # Bold mean vectors per UVJ region (classified by full-galaxy position)
+    classifications_full = photometry.classify_uvj(df_agn['VJ_Full'], df_agn['UV_Full'])
+    region_colors = {0: '#CC2929', 1: '#1A6FB5', 2: '#E07B00'}
+    region_names  = {0: 'Quiescent', 1: 'Star-forming', 2: 'Dusty'}
+    for cid in [0, 1, 2]:
+        mask = classifications_full == cid
+        if mask.sum() < 3: continue
+        mvj_f = df_agn.loc[mask, 'VJ_Full'].mean()
+        muv_f = df_agn.loc[mask, 'UV_Full'].mean()
+        mvj_d = df_agn.loc[mask, 'VJ_Decomposed'].mean()
+        muv_d = df_agn.loc[mask, 'UV_Decomposed'].mean()
+        print(f"{region_names[cid]}: shift = ({mvj_d - mvj_f:+.3f}, {muv_d - muv_f:+.3f})  n={mask.sum()}")
+        ax.annotate('', xy=(mvj_d, muv_d), xytext=(mvj_f, muv_f),
+                    arrowprops=dict(arrowstyle='->', color=region_colors[cid], lw=2.5))
+        ax.plot(mvj_f, muv_f, 'o', color=region_colors[cid], markersize=7, zorder=6)
+        ax.plot(mvj_d, muv_d, '^', color=region_colors[cid], markersize=7, zorder=6,
+                label=f'{region_names[cid]} mean shift')
+
+    ax.legend(loc='upper left', fontsize=7)
+    plt.tight_layout()
+    save_uvj_fig(fig, os.path.join(config.PROCESSED_DATA_DIR, 'UVJ_CIGALE_FullDecomp_Vectors.pdf'))
+    plt.show()
+
+    # Fig 11: Redshift Divergence — mean full vs decomposed positions per redshift bin
+    bins = [[0, 0.5], [0.5, 1.0], [1.0, 1.5], [1.5, 2.0], [2.0, 2.5], [2.5, 3.5]]
+    fig, ax = plt.subplots(figsize=visualization.PASA_SQ)
+    plot_uvj([], [], ax=ax, title="")
+    cmap = plt.cm.viridis
+    for i, (z_min, z_max) in enumerate(bins):
+        sub = df_agn[(df_agn[z_col] >= z_min) & (df_agn[z_col] < z_max)]
+        if len(sub) < 5: continue
+        mvj_f, muv_f = sub['VJ_Full'].mean(), sub['UV_Full'].mean()
+        mvj_d, muv_d = sub['VJ_Decomposed'].mean(), sub['UV_Decomposed'].mean()
+        c = cmap(i / len(bins))
+        ax.plot(mvj_f, muv_f, 'o', color=c, markersize=6, label=f'z=[{z_min},{z_max}]')
+        ax.plot(mvj_d, muv_d, '^', color=c, markersize=6)
+        ax.annotate('', xy=(mvj_d, muv_d), xytext=(mvj_f, muv_f),
+                    arrowprops=dict(arrowstyle="->", color=c, lw=2, alpha=0.7))
+    ax.legend(loc='lower right', title="Redshift bins", title_fontsize=7)
+    plt.tight_layout()
+    save_uvj_fig(fig, os.path.join(config.PROCESSED_DATA_DIR, 'UVJ_agn_evolution_CIGALE_ZFOURGE_comparison_redshift.pdf'))
+    plt.show()
+else:
+    print("CIGALE summary table not found.")
+==================== CELL 9 ====================
+# fracAGN is a discrete CIGALE grid (0, 0.01, 0.1, 0.2, ..., 0.9, 0.99). Treat each
+# non-zero grid value as its own group (exact match) rather than aggregating into
+# custom ranges - matches how fracAGN is already handled elsewhere in this notebook
+# (e.g. the frac_vals_nonzero grid used in 9e-ii/9e-iii/9e-iv/9f) and in
+# CIGALE_Decomposition_Validation.ipynb's alpha-calibration figure.
+FRAC_GRID = sorted(df_cig.loc[df_cig['fracAGN'] > 0, 'fracAGN'].dropna().unique())
+frac_out_dir = os.path.join(config.PROCESSED_DATA_DIR, 'fracAGN_diagnostics')
+os.makedirs(frac_out_dir, exist_ok=True)
+
+region_colors = {0: '#CC2929', 1: '#1A6FB5', 2: '#E07B00'}
+region_names  = {0: 'Quiescent', 1: 'Star-forming', 2: 'Dusty'}
+
+def region_mean_shifts(d, min_n=3):
+    """Mean full/decomposed UVJ positions per region (classified on full colours)."""
+    cls = photometry.classify_uvj(d['VJ_Full'], d['UV_Full'])
+    out = {}
+    for cid in [0, 1, 2]:
+        m = cls == cid
+        if m.sum() < min_n: continue
+        out[cid] = (d.loc[m, 'VJ_Full'].mean(),       d.loc[m, 'UV_Full'].mean(),
+                    d.loc[m, 'VJ_Decomposed'].mean(), d.loc[m, 'UV_Decomposed'].mean(),
+                    int(m.sum()))
+    return out
+
+# Fig A: UVJ grid (one panel per fracAGN grid value) - scatter + per-region mean shift arrows
+fig, axes = plt.subplots(3, 4, figsize=(9.5, 7.2), sharex=True, sharey=True)
+print(f"{'fracAGN':>10} {'Region':>14} {'dVJ':>8} {'dUV':>8} {'|shift|':>8} {'n':>6}")
+for ax, fv in zip(axes.flat, FRAC_GRID):
+    d = df_cig[df_cig['fracAGN'] == fv]
+    plot_uvj([], [], ax=ax, title="")
+    ax.scatter(d['VJ_Full'],       d['UV_Full'],       c='#444444',    s=4, alpha=0.15, zorder=3)
+    ax.scatter(d['VJ_Decomposed'], d['UV_Decomposed'], c='darkorange', s=4, alpha=0.25, zorder=3)
+    for cid, (vj_f, uv_f, vj_d, uv_d, n) in region_mean_shifts(d).items():
+        print(f"{fv:>10.2f} {region_names[cid]:>14} {vj_d - vj_f:>+8.3f} {uv_d - uv_f:>+8.3f} "
+              f"{np.hypot(vj_d - vj_f, uv_d - uv_f):>8.3f} {n:>6}")
+        ax.annotate('', xy=(vj_d, uv_d), xytext=(vj_f, uv_f),
+                    arrowprops=dict(arrowstyle='->', color=region_colors[cid], lw=2.5))
+        ax.plot(vj_f, uv_f, 'o', color=region_colors[cid], markersize=6, zorder=6)
+        ax.plot(vj_d, uv_d, '^', color=region_colors[cid], markersize=6, zorder=6)
+    ax.set_title(f'fracAGN {fv:g}  (n={len(d)})', fontsize=8)
+    for txt in ax.texts:
+        txt.set_fontsize(6.5)
+for ax in axes.flat[len(FRAC_GRID):]:
+    ax.axis('off')
+
+legend_handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor='#444444', markersize=5, label='Full galaxy'),
+                  Line2D([0], [0], marker='o', color='w', markerfacecolor='darkorange', markersize=5, label='Decomposed host')] + \
+                 [Line2D([0], [0], color=region_colors[cid], lw=2, label=region_names[cid]) for cid in [0, 1, 2]]
+axes.flat[0].legend(handles=legend_handles, loc='lower right', fontsize=6)
+for ax in axes[:-1, :].flat: ax.set_xlabel('')
+for ax in axes[:, 1:].flat: ax.set_ylabel('')
+plt.tight_layout()
+save_uvj_fig(fig, os.path.join(frac_out_dir, 'UVJ_CIGALE_FullDecomp_Vectors_fracAGN_bins.pdf'))
+plt.show()
+
+# Fig B: single-axis summary - per-region mean shift arrows for every fracAGN grid value on one diagram
+fig, ax = plt.subplots(figsize=visualization.PASA_SQ)
+plot_uvj([], [], ax=ax, title="")
+bin_alphas = np.linspace(0.35, 1.0, len(FRAC_GRID))
+bin_lws    = np.linspace(1.0, 2.8, len(FRAC_GRID))
+for i, fv in enumerate(FRAC_GRID):
+    d = df_cig[df_cig['fracAGN'] == fv]
+    for cid, (vj_f, uv_f, vj_d, uv_d, n) in region_mean_shifts(d, min_n=20).items():
+        ax.annotate('', xy=(vj_d, uv_d), xytext=(vj_f, uv_f),
+                    arrowprops=dict(arrowstyle='->', color=region_colors[cid],
+                                    lw=bin_lws[i], alpha=bin_alphas[i]))
+        ax.plot(vj_d, uv_d, '^', color=region_colors[cid], markersize=5,
+                alpha=bin_alphas[i], zorder=6)
+legend_handles = [Line2D([0], [0], color=region_colors[cid], lw=2, label=region_names[cid]) for cid in [0, 1, 2]] + \
+                 [Line2D([0], [0], color='gray', lw=bin_lws[i], alpha=bin_alphas[i], label=f'fracAGN {fv:g}')
+                  for i, fv in enumerate(FRAC_GRID)]
+ax.legend(handles=legend_handles, loc='upper left', fontsize=5)
+plt.tight_layout()
+save_uvj_fig(fig, os.path.join(frac_out_dir, 'UVJ_CIGALE_FullDecomp_Vectors_fracAGN_summary.pdf'))
+plt.show()
+==================== CELL 13 ====================
+# Per-galaxy UVJ class transitions between full and decomposed photometry.
+# Population means hide the effect: only ~5% of AGN hosts change class, but the
+# migration is one-directional (SF/D -> Q; zero Q -> SF), i.e. AGN light disguises
+# quiescent hosts as star-forming — the systematic shift predicted by the methodology.
+d = df_cig[df_cig['fracAGN'] > 0].copy()
+d['cls_full'] = photometry.classify_uvj(d['VJ_Full'].values, d['UV_Full'].values)
+d['cls_dec']  = photometry.classify_uvj(d['VJ_Decomposed'].values, d['UV_Decomposed'].values)
+
+cls_names = {0: 'Q', 1: 'SF', 2: 'D'}
+print('Transition matrix (rows = full, cols = decomposed):')
+print(pd.crosstab(d['cls_full'].map(cls_names), d['cls_dec'].map(cls_names)))
+
+# Fig G: migration arrows for class-changing galaxies only
+transition_styles = {
+    (1, 0): ('#CC2929', 'SF → Quiescent'),
+    (2, 0): ('#8E44AD', 'Dusty → Quiescent'),
+    (2, 1): ('#1A6FB5', 'Dusty → SF'),
+    (1, 2): ('#E07B00', 'SF → Dusty'),
+}
+fig, ax = plt.subplots(figsize=visualization.PASA_SQ)
+plot_uvj([], [], ax=ax, title="")
+for (c_from, c_to), (color, label) in transition_styles.items():
+    m = (d['cls_full'] == c_from) & (d['cls_dec'] == c_to)
+    for _, row in d[m].iterrows():
+        ax.annotate('', xy=(row['VJ_Decomposed'], row['UV_Decomposed']),
+                    xytext=(row['VJ_Full'], row['UV_Full']),
+                    arrowprops=dict(arrowstyle='->', color=color, lw=0.7, alpha=0.4))
+legend_handles = [Line2D([0], [0], color=c, lw=2,
+                         label=f'{lab} (n={((d["cls_full"] == f) & (d["cls_dec"] == t)).sum()})')
+                  for (f, t), (c, lab) in transition_styles.items()]
+ax.legend(handles=legend_handles, loc='upper left', fontsize=6)
+plt.tight_layout()
+save_uvj_fig(fig, os.path.join(frac_out_dir, 'UVJ_CIGALE_class_migrations.pdf'))
+plt.show()
+
+# Fig H: quiescent fraction before/after decomposition per fracAGN grid value
+q_full, q_dec, labels = [], [], []
+for fv in FRAC_GRID:
+    b = d[d['fracAGN'] == fv]
+    q_full.append(100 * (b['cls_full'] == 0).mean())
+    q_dec.append(100 * (b['cls_dec'] == 0).mean())
+    labels.append(f'{fv:g}')
+
+fig, ax = plt.subplots(figsize=visualization.PASA_SQ)
+x = np.arange(len(labels))
+w = 0.38
+ax.bar(x - w/2, q_full, w, color='#444444',    label='Full photometry')
+ax.bar(x + w/2, q_dec,  w, color='darkorange', label='Decomposed host')
+for xi, (qf, qd) in enumerate(zip(q_full, q_dec)):
+    ax.annotate(f'+{qd - qf:.1f}', (xi + w/2, qd), textcoords='offset points',
+                xytext=(0, 2), ha='center', fontsize=6)
+ax.set_xticks(x)
+ax.set_xticklabels(labels, rotation=90, fontsize=7)
+ax.set_xlabel('CIGALE best-fit fracAGN')
+ax.set_ylabel('Quiescent fraction [%]')
+ax.legend(fontsize=7)
+plt.tight_layout()
+save_uvj_fig(fig, os.path.join(frac_out_dir, 'UVJ_CIGALE_hidden_quiescent_fraction.pdf'))
+plt.show()
