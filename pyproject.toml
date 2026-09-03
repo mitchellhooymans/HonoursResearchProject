@@ -21,6 +21,8 @@ dependencies = [
 [tool.uv]
 dev-dependencies = [
     "ipykernel>=6.25.0",
+    "nbclient>=0.11.0",
+    "nbconvert>=7.17.1",
 ]
 
 [tool.uv.sources]
