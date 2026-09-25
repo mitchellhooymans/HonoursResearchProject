@@ -1,6 +1,6 @@
 # Paper Narrative Review: What Story Is `paper.tex` Telling?
 
-*Full read-through of `Context/AGNPaper/paper.tex` against its figures, checking whether the argument holds together end to end. Generated 2026-08-06, most recently updated same day after restructuring the CIGALE Results subsections into four narrative beats.*
+*Full read-through of `Context/AGNPaper/paper.tex` against its figures, checking whether the argument holds together end to end. Generated 2026-08-06, updated same day after restructuring the CIGALE Results subsections into four narrative beats. §4/§5 refreshed 2026-09-25 — the paper is now a complete draft and most gaps listed below have since been written; see `docs/paper_next_steps.md` for the completion status.*
 
 ## 1. The core story, as the paper currently argues it
 
@@ -15,12 +15,12 @@ Structure: model → apply the model → confirm on real data two different ways
 | §4.1 IRAC validation | Type 1 composites drop out of the Lacy wedge (completeness 0.26→0.06); Type 2 composites move *into* it (→98% at 70% contribution) | Fig 1 (`Brown-IRAC-combined`), Table 1 | **Solid.** |
 | §4.2 UVJ theoretical evolution | Type 1 shifts host colours bluer, into the star-forming region; Type 2 barely moves | Fig 2 (`Brown-UVJ-combined`), Fig 3 (`uvj-fractions-combined`), Fig 4 (`composite_uvj`) | **Solid.** |
 | §4.3 ZFOURGE synthetic injection | Real ZFOURGE galaxies, with the theoretical Type 1 model injected on top, show the same star-forming-ward migration | Fig 5 (`ZFOURGE-EAZY-UVJ`), Fig 6 (`ZFOURGE-EAZY-UVJSingleGalaxy_Comparison`) | **Solid.** Bridge from "the model does this" to "real galaxy colours do this too." |
-| §4.4 **The Systematic UVJ Colour Shift** (new) | The whole AGN-host population's colours shift with fracAGN, not just galaxies that cross a class boundary | Fig 7 (`cigale-allhosts-fracagn-vectors`) | **Figure is good, no lead-in paragraph yet** (todo comment has the numbers). |
-| §4.5 **Redshift Dependence of the Colour Shift** (new) | The shift magnitude and mean fracAGN both rise with redshift | Fig 8 (`cigale-allhosts-redshift-grid`) | **Figure is good, no paragraph yet** - this is where "why does the shift grow with z" needs discussing (confound vs genuine effect). |
+| §4.4 **The Systematic UVJ Colour Shift** (new) | The whole AGN-host population's colours shift with fracAGN, not just galaxies that cross a class boundary | Fig 7 (`cigale-allhosts-fracagn-vectors`) | **Solid** — lead-in paragraph now written (2026-09-25 refresh). |
+| §4.5 **Redshift Dependence of the Colour Shift** (new) | The shift magnitude and mean fracAGN both rise with redshift | Fig 8 (`cigale-allhosts-redshift-grid`) | **Solid** — redshift-dependence discussion (confound vs genuine effect) now written. |
 | §4.6 **UVJ Offset and Migration to the Quiescent Region** (new) | Vector offset rises monotonically with fracAGN (ρ=0.49); migration rate into quiescent is hump-shaped, peaking fracAGN≈0.1-0.5 | Fig 9 (`fracagn-distribution-offset`) | **Solid, has a paragraph already** (the pre-existing "SED decomposition via CIGALE provides..." text). |
-| §4.7 **Redshift Dependence of the Quiescent Migration** (new) | Migration hump isn't solely a redshift-dilution artefact (survives within z<1.5); recovery peaks z=0.5-1.0, null above z≈1.5 | Fig 10 (`fracagn-redshift-confound`), Fig 11 (`hidden-quiescent-redshift`) | **Solid, statistically rigorous** (Spearman tests, bootstrap CIs, AIC model comparisons) - Fig 11 still needs its own paragraph (todo comment has the numbers). |
+| §4.7 **Redshift Dependence of the Quiescent Migration** (new) | Migration hump isn't solely a redshift-dilution artefact (survives within z<1.5); recovery peaks z=0.5-1.0, null above z≈1.5 | Fig 10 (`fracagn-redshift-confound`), Fig 11 (`hidden-quiescent-redshift`) | **Solid, statistically rigorous** (Spearman tests, bootstrap CIs, AIC model comparisons) — Fig 11 paragraph now written. |
 | Discussion | VJ shift deviation attributed to missing intermediate-type AGN; dusty fraction falls after decomposition, consistent with cosmic SFH | Refs back to Fig 4, Fig 7 | **Solid**, reads fine as-is - this is the intended home for CIGALE synthesis/interpretation (see §3 below), not a new subsection inside Results. |
-| Conclusions | *(none)* | - | **Missing entirely.** |
+| Conclusions | Theoretical predictions → empirical ZFOURGE/CIGALE validation → cosmic time peak summary | - | **Solid** — written (2026-09-25 refresh). |
 
 ## 3. Restructuring done this pass, and why
 
@@ -34,21 +34,20 @@ All changes verified: figure count/order unchanged (still 11), no duplicate labe
 
 ## 4. What's actually missing or broken in the connective tissue
 
-Ranked by how much they affect a straight read-through:
+*(Updated 2026-09-25 — items 1, 2, 3, and 6's Conclusions clause have since been resolved; struck through below and kept for history. Items 4 and 5 are still open.)*
 
-1. **No lead-in paragraph for §4.4/§4.5** (Figs 7-8) - the CIGALE method subsection now exists in Methodology, but Results still jumps straight into two figures with no topic sentence. Numbers are in the `% todo` comments above each.
-2. **§4.5's "why does the shift grow with redshift" discussion doesn't exist yet** - this is explicitly one of the four beats you wanted covered; the todo comment frames the fracAGN-confound-vs-genuine-effect question but the actual argument needs writing.
-3. **§4.7's Fig 11 still has no paragraph** (todo comment has the numbers: +9.3pp peak at z=0.5-1.0, zero above z=1.5).
-4. **The theory tie-back argument has no home** - a figure that overlaid observed CIGALE decomposition arrows on the theoretical Type 1 tracks was removed as redundant with Fig 7 a few turns back; the claim it made ("decomposition retraces the contamination path in reverse") doesn't live anywhere now. `% note` above the Discussion section marks this as an open decision.
-5. **Conclusions section is empty.**
-6. **End-matter** (Funding, Acknowledgments, Data Availability, Competing Interests) is filled in now; Author Contributions is intentionally still a placeholder (you're adding it later); Ethical Standards is already accurate boilerplate.
+1. ~~**No lead-in paragraph for §4.4/§4.5** (Figs 7-8)~~ — written.
+2. ~~**§4.5's "why does the shift grow with redshift" discussion doesn't exist yet**~~ — written.
+3. ~~**§4.7's Fig 11 still has no paragraph**~~ — written.
+4. **The theory tie-back argument has no home** - a figure that overlaid observed CIGALE decomposition arrows on the theoretical Type 1 tracks was removed as redundant with Fig 7 a few turns back; the claim it made ("decomposition retraces the contamination path in reverse") doesn't live anywhere now. Still an open decision — not confirmed resolved.
+5. **Figure 7's fate** - still open whether to reconsider merging it into Fig 8, flagged in an earlier pass and never resolved either way.
+6. ~~**Conclusions section is empty.**~~ — written. **End-matter** (Funding, Acknowledgments, Data Availability, Competing Interests) is filled in; Author Contributions is intentionally still a placeholder; Ethical Standards is already accurate boilerplate.
 
 ## 5. Recommended next steps, in order
 
-1. Write §4.4's lead-in paragraph (Figs 7-8 primer).
-2. Write §4.5's redshift-dependence discussion - this is the one that needs actual interpretive argument, not just numbers.
-3. Write §4.7's Fig 11 paragraph.
-4. Decide on the theory-tie-back claim (item 4 above): revive as a Discussion sentence, or drop deliberately.
-5. Decide on Figure 7's fate if you still want to reconsider merging it into Fig 8 (flagged as open in an earlier pass, never resolved either way).
-6. Write the Conclusions section.
-7. Fill in Author Contributions when ready.
+*(Updated 2026-09-25: steps 1, 2, 3, and 6 are done. Remaining open items:)*
+
+1. Decide on the theory-tie-back claim (§4 item 4 above): revive as a Discussion sentence, or drop deliberately.
+2. Decide on Figure 7's fate if you still want to reconsider merging it into Fig 8 (§4 item 5).
+3. Fill in Author Contributions when ready.
+4. Re-read the 14 `% AI-DRAFTED`/`% AI-UPDATED` inline comments throughout the paper in your own voice and verify against fresh notebook runs before submission (see `docs/paper_next_steps.md`).
