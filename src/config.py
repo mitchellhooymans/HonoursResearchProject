@@ -78,9 +78,18 @@ PAPER_FIGURE_MANIFEST = {
 }
 
 # SKIRTOR AGN model parameters (Type 1 and Type 2 defaults)
-# Based on the project's modelling methodology
-SKIRTOR_TYPE1_PARAMS = {'optical_depth': 7, 'p': 0.5, 'q': 0, 'opening_angle': 40, 'radius_ratio': 20, 'inclination': 0}
-SKIRTOR_TYPE2_PARAMS = {'optical_depth': 7, 'p': 0.5, 'q': 0, 'opening_angle': 40, 'radius_ratio': 20, 'inclination': 90}
+# Inclination matched to CIGALE's own best-fit AGN geometry for this ZFOURGE
+# sample (docs/cigale_recombination_validation_findings.md Sec 3: scanning all
+# 6,509 CIGALE best-fit FITS headers found only two inclinations were ever
+# fit -- i=30 (76.1%, n=4956) and i=70 (23.9%, n=1553), both at CIGALE's own
+# torus shape p=1,q=1. Only the inclination is matched here; this project's
+# own torus shape (p=0.5, q=0) is kept unchanged. At this shape, i=30 is
+# still 76.9% direct/unobscured flux (vs 80.2% at the old i=0) and i=70 is
+# still 98.9% dust-reprocessed/obscured (vs 99.9% at the old i=90) -- the
+# Type 1 (unobscured) / Type 2 (obscured) dichotomy survives, just less
+# extreme than the old face-on/edge-on limits.
+SKIRTOR_TYPE1_PARAMS = {'optical_depth': 7, 'p': 0.5, 'q': 0, 'opening_angle': 40, 'radius_ratio': 20, 'inclination': 30}
+SKIRTOR_TYPE2_PARAMS = {'optical_depth': 7, 'p': 0.5, 'q': 0, 'opening_angle': 40, 'radius_ratio': 20, 'inclination': 70}
 
 # ==============================================================================
 # Photometric Definitions
