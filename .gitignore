@@ -26,3 +26,4 @@ PROJECT_OVERVIEW.md
 __pycache__/
 *.pyc
 6.25.0
+.claude-scratch/

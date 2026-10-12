@@ -50,4 +50,4 @@ All changes verified: figure count/order unchanged (still 11), no duplicate labe
 1. Decide on the theory-tie-back claim (§4 item 4 above): revive as a Discussion sentence, or drop deliberately.
 2. Decide on Figure 7's fate if you still want to reconsider merging it into Fig 8 (§4 item 5).
 3. Fill in Author Contributions when ready.
-4. Re-read the 14 `% REVIEW` inline comments throughout the paper in your own voice and verify against fresh notebook runs before submission (see `docs/paper_next_steps.md`).
+4. Re-read the 17 `% REVIEW` inline comments throughout the paper in your own voice and verify against fresh notebook runs before submission (see `docs/paper_next_steps.md`).

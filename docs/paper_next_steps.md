@@ -16,7 +16,7 @@
 
 ## Remaining polish items
 
-1. **14 inline `% REVIEW` review comments** scattered through the paper flag text that is new or has been updated — these should be re-read and adjusted into the author's own voice, and verified against fresh notebook runs, before submission.
+1. **17 inline `% REVIEW` comments** scattered through the paper flag text that is new or has been updated — these should be re-read and adjusted into the author's own voice, and verified against fresh notebook runs, before submission.
 2. **Author Contributions** section is still an intentional placeholder, to be filled in later.
 
 See [`docs/paper_narrative_review.md`](paper_narrative_review.md) for the narrative-level read-through and its own remaining open items.
