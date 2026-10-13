@@ -71,10 +71,13 @@ PAPER_FIGURE_MANIFEST = {
     "ZFOURGE_UVJ_Density_RegionTracks_Combined.pdf": "ZFOURGE_UVJ_Density_RegionTracks_Combined.pdf",
     "UVJ_CIGALE_hidden_quiescent_redshift.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_hidden_quiescent_redshift.pdf"),
     "UVJ_CIGALE_fracAGN_distribution_and_offset.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_fracAGN_distribution_and_offset.pdf"),
-    "UVJ_CIGALE_fracAGN_redshift_confound.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_fracAGN_redshift_confound.pdf"),
-    "UVJ_CIGALE_allhosts_fracAGN_colored_combined.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_allhosts_fracAGN_colored_combined.pdf"),
-    "UVJ_CIGALE_allhosts_fracAGN_colored_redshift_bins.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_allhosts_fracAGN_colored_redshift_bins.pdf"),
-    "Paper_UVJ_Contamination_Bias_Summary.pdf": "Paper_UVJ_Contamination_Bias_Summary.pdf",
+    "UVJ_CIGALE_fracAGN_redshift_confound.pdf": os.path.join("useall", "UVJ_useall_fracAGN_redshift_confound.pdf"),
+    "UVJ_CIGALE_allhosts_fracAGN_colored_combined.pdf": os.path.join("useall", "UVJ_useall_allhosts_fracAGN_colored_combined.pdf"),
+    "UVJ_CIGALE_allhosts_fracAGN_colored_redshift_bins.pdf": os.path.join("useall", "UVJ_useall_allhosts_fracAGN_colored_redshift_bins.pdf"),
+    "Paper_UVJ_Offset_vs_fAGN.pdf": os.path.join("useall", "Paper_UVJ_Offset_vs_fAGN_useall.pdf"),
+    "UVJ_CIGALE_recombination_validation.pdf": os.path.join("useall", "UVJ_useall_recombination_validation.pdf"),
+    "UVJ_CIGALE_LAGN_vs_redshift.pdf": os.path.join("useall", "UVJ_useall_LAGN_vs_redshift.pdf"),
+    "UVJ_CIGALE_movers_vs_population.pdf": os.path.join("useall", "UVJ_useall_movers_vs_population.pdf"),
 }
 
 # SKIRTOR AGN model parameters (Type 1 and Type 2 defaults)
