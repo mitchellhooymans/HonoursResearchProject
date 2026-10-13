@@ -51,11 +51,18 @@ SKIRTOR_DIR = _glass_config.SKIRTOR_DIR
 PAPER_FIGURES_DIR = os.path.join(PROCESSED_DATA_DIR, "PaperFigures")
 
 # The gitignored Overleaf checkout (only present locally) and the image
-# folder paper.tex's \includegraphics calls actually point at. When present,
-# the paper-figure export step copies straight in here too, so a figure can
-# never go stale in the paper just because the manual copy step was skipped.
+# folder paper.tex's \includegraphics calls actually point at. Notebooks
+# export figures into outputs/PaperFigures/ only; they copy into the paper's
+# own Images folder ONLY when COPY_FIGURES_INTO_PAPER is True (below), because
+# the figures in the paper are curated and must never be replaced by an
+# older copy just because a notebook was re-run.
 AGNPAPER_DIR = os.path.join(PROJECT_ROOT, "Context", "AGNPaper")
 PAPER_OVERLEAF_IMAGES_DIR = os.path.join(AGNPAPER_DIR, "Images", "TheoreticalModelPlots")
+
+# Safety switch: leave False so running a notebook never touches the paper's Images folder.
+# Set True only for a deliberate refresh (src/paper_export.py then backs up every replaced file and
+# keeps any paper figure that is newer than its source).
+COPY_FIGURES_INTO_PAPER = False
 
 # Figures required by paper.tex's \includegraphics calls, keyed by the exact
 # filename the paper expects. Value = path relative to PROCESSED_DATA_DIR
@@ -67,16 +74,13 @@ PAPER_FIGURE_MANIFEST = {
     "Paper_UVJ_Evolution_Combined.pdf": "Paper_UVJ_Evolution_Combined.pdf",
     "Paper_UVJ_Fractions_Combined.pdf": "Paper_UVJ_Fractions_Combined.pdf",
     "CompositeSEDs_UVJ.pdf": "CompositeSEDs_UVJ.pdf",
-    "UVJ_Type1_Density_Evolution.pdf": "UVJ_Type1_Density_Evolution.pdf",
-    "ZFOURGE_UVJ_Density_RegionTracks_Combined.pdf": "ZFOURGE_UVJ_Density_RegionTracks_Combined.pdf",
-    "UVJ_CIGALE_hidden_quiescent_redshift.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_hidden_quiescent_redshift.pdf"),
-    "UVJ_CIGALE_fracAGN_distribution_and_offset.pdf": os.path.join("fracAGN_diagnostics", "UVJ_CIGALE_fracAGN_distribution_and_offset.pdf"),
-    "UVJ_CIGALE_fracAGN_redshift_confound.pdf": os.path.join("useall", "UVJ_useall_fracAGN_redshift_confound.pdf"),
     "UVJ_CIGALE_allhosts_fracAGN_colored_combined.pdf": os.path.join("useall", "UVJ_useall_allhosts_fracAGN_colored_combined.pdf"),
     "UVJ_CIGALE_allhosts_fracAGN_colored_redshift_bins.pdf": os.path.join("useall", "UVJ_useall_allhosts_fracAGN_colored_redshift_bins.pdf"),
     "Paper_UVJ_Offset_vs_fAGN.pdf": os.path.join("useall", "Paper_UVJ_Offset_vs_fAGN_useall.pdf"),
-    "UVJ_CIGALE_recombination_validation.pdf": os.path.join("useall", "UVJ_useall_recombination_validation.pdf"),
+    "Paper_UVJ_offset_theory_vs_observed.pdf": os.path.join("useall", "Paper_UVJ_offset_theory_vs_observed_useall.pdf"),
+    "UVJ_CIGALE_fracAGN_redshift_confound.pdf": os.path.join("useall", "UVJ_useall_fracAGN_redshift_confound.pdf"),
     "UVJ_CIGALE_LAGN_vs_redshift.pdf": os.path.join("useall", "UVJ_useall_LAGN_vs_redshift.pdf"),
+    "UVJ_CIGALE_recombination_validation.pdf": os.path.join("useall", "UVJ_useall_recombination_validation.pdf"),
     "UVJ_CIGALE_movers_vs_population.pdf": os.path.join("useall", "UVJ_useall_movers_vs_population.pdf"),
 }
 
